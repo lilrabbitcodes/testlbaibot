@@ -349,9 +349,10 @@ class ChatScene:
 # Define the main LingobabeChat class
 class LingobabeChat:
     def __init__(self):
-        self.points = 50  # Starting points
+        self.points = 50
         self.current_scene = 1
         self.chat_script = self.load_chat_script()
+        self.last_response = None  # Store last bot response for audio
 
     def load_chat_script(self):
         """Load and parse the chat script from thechat.md"""
@@ -368,6 +369,10 @@ class LingobabeChat:
 
     def parse_scene(self, scene_content):
         """Parse scene content into structured format"""
+        # Remove scene numbering and title
+        scene_content = scene_content.split("Lingobabe:", 1)[-1].strip()
+        
+        # Change the prompt text
         parts = scene_content.split("🟢 **User MUST choose one response:**")
         if len(parts) < 2:
             return None
@@ -402,7 +407,13 @@ class LingobabeChat:
         for i, block in enumerate(option_blocks[1:], 1):
             response_lines = block.split("\n\n")
             if len(response_lines) > 1:
-                responses[i] = response_lines[1].strip()
+                response_text = response_lines[1].strip()
+                # Extract Chinese text from response for audio
+                chinese_response = next((line for line in response_text.split('\n') if '「' in line and '」' in line), '')
+                responses[i] = {
+                    "text": response_text,
+                    "chinese": chinese_response
+                }
 
         return {
             "text": scene_text,
@@ -423,8 +434,9 @@ class LingobabeChat:
                 if response:
                     self.points += option["points"]
                     self.current_scene += 1 if self.current_scene < 5 else 0
+                    self.last_response = response["chinese"]  # Store Chinese response for audio
                     return {
-                        "text": response,
+                        "text": response["text"],
                         "points": self.points,
                         "next_scene": self.get_current_scene() if self.current_scene < 6 else None
                     }
@@ -433,16 +445,16 @@ class LingobabeChat:
         except (ValueError, IndexError):
             return {"text": "Sorry babe, I don't quite understand you.", "points": self.points}
 
-# Initialize session state
+# Update the initialization message format
 if "chatbot" not in st.session_state:
     st.session_state.chatbot = LingobabeChat()
     current_scene = st.session_state.chatbot.get_current_scene()
     st.session_state.chat_history = [{
         "role": "assistant",
-        "content": current_scene["text"] + "\n\n🟢 **User MUST choose one response:**\n\n" + "\n\n".join(
+        "content": current_scene["text"] + "\n\n🟢 **Choose your response to your babe:**\n\n" + "\n\n".join(
             f"{i}️⃣ {opt['chinese']}\n{opt['pinyin']}\n{opt['english']}"
             for i, opt in enumerate(current_scene["options"], 1)
-        ) + "\n\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
+        ) + "\n\n🔊 Want to hear how to pronounce my response? Type 'play audio'!"
     }]
 
 # Display chat history
@@ -533,7 +545,6 @@ def format_message_content(content):
 
 def handle_chat_input(prompt):
     """Handle chat input and return appropriate responses"""
-    # Add user message to chat
     with st.chat_message("user", avatar=USER_AVATAR):
         st.markdown(prompt)
     
@@ -543,25 +554,36 @@ def handle_chat_input(prompt):
             option_num = int(prompt.split()[-1])
             current_scene = st.session_state.chatbot.get_current_scene()
             if 1 <= option_num <= 3:
-                chinese_text = current_scene["options"][option_num-1]["chinese"]
+                option = current_scene["options"][option_num-1]
+                chinese_text = option["chinese"]
+                # Remove markdown formatting from Chinese text
+                chinese_text = chinese_text.replace("**", "").replace("「", "").replace("」", "")
                 audio_html = text_to_speech(chinese_text)
                 with st.chat_message("assistant", avatar=TUTOR_AVATAR):
+                    st.markdown(f"This is how you pronounce: {chinese_text}, babe")
                     st.markdown(audio_html, unsafe_allow_html=True)
-                return
         except (ValueError, IndexError):
-            pass
+            with st.chat_message("assistant", avatar=TUTOR_AVATAR):
+                st.markdown("Sorry babe, I don't quite understand you.")
+        return
     
     # Handle normal responses
     response = st.session_state.chatbot.handle_choice(prompt)
     with st.chat_message("assistant", avatar=TUTOR_AVATAR):
         st.markdown(response["text"])
         st.markdown(f"\n❤️ Babe Happy Meter: {response['points']}/100")
-    
-    # Add to chat history
-    st.session_state.chat_history.extend([
-        {"role": "user", "content": prompt},
-        {"role": "assistant", "content": response["text"] + f"\n\n❤️ Babe Happy Meter: {response['points']}/100"}
-    ])
+        if response.get("next_scene"):
+            next_scene = response["next_scene"]
+            scene_message = (
+                next_scene["text"] + 
+                "\n\n🟢 **Choose your response to your babe:**\n\n" + 
+                "\n\n".join(
+                    f"{i}️⃣ {opt['chinese']}\n{opt['pinyin']}\n{opt['english']}"
+                    for i, opt in enumerate(next_scene["options"], 1)
+                ) + 
+                "\n\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
+            )
+            st.markdown(scene_message)
 
 # Update the chat input handling section
 if prompt := st.chat_input("Type your message here...", key="main_chat_input"):
