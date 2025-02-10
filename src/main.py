@@ -328,7 +328,18 @@ _"Perfect timing. I was just admiring the ambiance—seems like you have good ta
                     "english": "I took the liberty of making a reservation. Only the best for tonight.",
                     "points": 12
                 },
-                # Add other options...
+                {
+                    "chinese": "「希望这里的美食能配得上这氛围。」",
+                    "pinyin": "(Xīwàng zhèlǐ de měishí néng pèi dé shàng zhè fēnwèi.)",
+                    "english": "I hope the food lives up to the atmosphere.",
+                    "points": 9
+                },
+                {
+                    "chinese": "「说实话？我只是跟着网上的好评来的。」",
+                    "pinyin": "(Shuō shíhuà? Wǒ zhǐshì gēnzhe wǎngshàng de hǎopíng lái de.)",
+                    "english": "Honestly? I just followed the best reviews online.",
+                    "points": 6
+                }
             ],
             responses={
                 1: {
@@ -340,14 +351,43 @@ _"Perfect timing. I was just admiring the ambiance—seems like you have good ta
 
 _"A man who plans ahead—I like that. It shows confidence."_""",
                     "next_options": [
-                        # Add next set of options...
+                        {
+                            "chinese": "「美好的夜晚，从美好的陪伴开始。」",
+                            "pinyin": "(Měihǎo de yèwǎn, cóng měihǎo de péibàn kāishǐ.)",
+                            "english": "A great evening starts with great company.",
+                            "points": 12
+                        },
+                        # Add other options for this response...
                     ]
                 },
-                # Add other responses...
+                2: {
+                    "text": """_(Glances at the menu, intrigued.)_
+
+**「我也这么觉得。但完美的晚餐，不仅仅是食物而已。」**
+
+(Wǒ yě zhème juéde. Dàn wánměi de wǎncān, bù jǐnjǐn shì shíwù éryǐ.)
+
+_"I have a feeling it will. But a perfect dinner is more than just the food."_""",
+                    "next_options": [
+                        # Add options for this response...
+                    ]
+                },
+                3: {
+                    "text": """_(Raises an eyebrow, smirking.)_
+
+**「很务实的做法。那么，你是那种相信评论的人，还是喜欢自己去发现新地方？」**
+
+(Hěn wùshí de zuòfǎ. Nàme, nǐ shì nà zhǒng xiāngxìn pínglùn de rén, háishì xǐhuan zìjǐ qù fāxiàn xīn dìfāng?)
+
+_"Practical. So, do you always trust reviews, or do you like discovering places yourself?"_""",
+                    "next_options": [
+                        # Add options for this response...
+                    ]
+                }
             }
         )
         
-        # Add other scenes similarly...
+        # Add Scene 2, 3, 4, and 5...
         return scenes
 
     def get_current_scene(self):
