@@ -993,61 +993,10 @@ def format_message_content(content):
     return '\n'.join(formatted_lines)
 
 def handle_chat_input(prompt):
-    """Handle chat input and return appropriate responses"""
-    # Add user message to history
-    st.session_state.chat_history.append({
-        "role": "user",
-        "content": prompt
-    })
-    
-    # Show animated typing indicator
-    with st.chat_message("assistant", avatar=TUTOR_AVATAR):
-        typing_placeholder = st.empty()
-        typing_placeholder.markdown("""
-            <div class="typing-indicator">
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-            </div>
-        """, unsafe_allow_html=True)
-        time.sleep(1)  # Simulate typing delay
-    
-    # Handle audio playback requests
-    if prompt.lower().startswith("play audio"):
-        try:
-            option_num = int(prompt.split()[-1])
-            current_scene = st.session_state.chatbot.get_current_scene()
-            
-            if current_scene and 1 <= option_num <= 3:
-                option = current_scene.options[option_num-1]
-                chinese = option["chinese"]
-                for char in ["「", "」", "**"]:
-                    chinese = chinese.replace(char, "")
-                chinese = chinese.strip()
-                
-                audio_html = text_to_speech(chinese)
-                
-                if audio_html:
-                    typing_placeholder.empty()
-                    st.session_state.chat_history.append({
-                        "role": "assistant",
-                        "content": f"This is how you pronounce, babe:\n\n{chinese}\n{option['pinyin']}\n{option['english']}",
-                        "audio_html": audio_html
-                    })
-                    st.rerun()
-            return
-            
-        except Exception as e:
-            print(f"Error in audio playback: {e}")
-            typing_placeholder.empty()
-            st.session_state.chat_history.append({
-                "role": "assistant",
-                "content": "Sorry babe, I couldn't play the audio right now."
-            })
-            st.rerun()
-    
-    # Handle normal responses
     try:
+        typing_placeholder = st.empty()
+        typing_placeholder.markdown("_Lingobabe is typing..._")
+        
         choice = None
         current_scene = st.session_state.chatbot.get_current_scene()
         
@@ -1063,19 +1012,28 @@ def handle_chat_input(prompt):
         
         if choice and 1 <= choice <= 3:
             response = st.session_state.chatbot.handle_choice(choice)
-            points = current_scene.options[choice-1]["points"]
             
-            # Extract Chinese text from response for audio
-            chinese_text = response["text"].split("**")[1].split("」**")[0]
-            audio_html = text_to_speech(chinese_text)
-            
-            # Remove typing indicator and add bot's response with points
+            # Remove typing indicator
             typing_placeholder.empty()
-            st.session_state.chat_history.append({
-                "role": "assistant",
-                "content": f"{response['text']}\n\n❤️ Babe Happiness Meter: {response['points']}/100",
-                "audio_html": audio_html
-            })
+            
+            # Add Lingobabe's immediate reply
+            if "text" in response:
+                chinese_text = response["text"].split("**")[1].split("」**")[0]
+                audio_html = text_to_speech(chinese_text)
+                
+                st.session_state.chat_history.append({
+                    "role": "assistant",
+                    "content": response["text"],
+                    "audio_html": audio_html
+                })
+            
+            # Add scene transition if present
+            if "transition" in response:
+                st.session_state.chat_history.append({
+                    "role": "assistant",
+                    "content": response["transition"],
+                    "no_audio": True
+                })
             
             # If there's a next scene, add it to chat history
             if "next_options" in response and response["next_options"]:
@@ -1084,7 +1042,7 @@ def handle_chat_input(prompt):
                 for i, opt in enumerate(next_scene, 1):
                     chinese = opt['chinese'].replace('**', '')
                     options_text += f"{i}️⃣ {chinese} {opt['pinyin']} {opt['english']}\n\n"
-                options_text += "-\n\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
+                options_text += "🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
                 
                 st.session_state.chat_history.append({
                     "role": "assistant",
@@ -1100,7 +1058,7 @@ def handle_chat_input(prompt):
         print(f"Error handling response: {e}")
         typing_placeholder.empty()
         st.session_state.chat_history.append({
-            "role": "assistant",
+            "role": "assistant", 
             "content": "Sorry babe, I don't quite understand you."
         })
     
