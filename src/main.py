@@ -599,7 +599,6 @@ def handle_chat_input(prompt):
                         st.markdown(option["english"].replace("_", ""))
                         st.markdown(audio_html, unsafe_allow_html=True)
                     
-                    # Add to chat history
                     st.session_state.chat_history.append({
                         "role": "user",
                         "content": prompt
