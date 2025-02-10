@@ -438,7 +438,23 @@ _"I have a feeling it will. But a perfect dinner is more than just the food."_""
                             "chinese": "「确实如此。美好的氛围、可口的食物，再加上一位美丽的约会对象，才能令人难忘。」",
                             "pinyin": "(Quèshí rúcǐ. Měihǎo de fēnwèi, kěkǒu de shíwù, zài jiā shàng yī wèi měilì de yuēhuì duìxiàng, cáinéng lìng rén nánwàng.)",
                             "english": "True. A great ambiance, good food, and a beautiful date make it unforgettable.",
-                            "points": 11
+                            "points": 11,
+                            "response": {
+                                "text": """_(Smirks, amused.)_
+
+**「油嘴滑舌啊。看看你能保持多久。」**
+
+(Yóuzuǐhuáshé a. Kànkan nǐ néng bǎochí duōjiǔ.)
+
+_"Smooth talker. Let's see if you can keep this up all night."_""",
+                                "transition": """_The sommelier approaches with an elegant wine list, waiting patiently for your selection._
+
+**「让我们看看你的品味如何。」**
+
+(Ràng wǒmen kànkan nǐ de pǐnwèi rúhé.)
+
+_"Let's see about your taste then."_"""
+                            }
                         },
                         {
                             "chinese": "「我认为完美的体验在于平衡——环境、味道、还有陪伴。」",
@@ -834,9 +850,10 @@ _"A comedian, huh? Alright, impress me—what's your best line?"_""",
                 if sub_response:
                     return {
                         "responses": [
-                            {"text": sub_response["response"]["text"], "points": scene.options[choice-1]["points"]},
+                            {"text": sub_response["response"]["text"]},
                             {"text": sub_response["response"]["transition"], "no_audio": True}
-                        ]
+                        ],
+                        "points": scene.options[choice-1]["points"]
                     }
             
             return {
