@@ -590,20 +590,32 @@ def handle_chat_input(prompt):
             
             if current_scene and 1 <= option_num <= 3:
                 option = current_scene.options[option_num-1]
-                chinese = option["chinese"].replace("**", "").replace("「", "").replace("」", "")
+                # Clean the Chinese text properly
+                chinese = option["chinese"]
+                for char in ["「", "」", "**"]:
+                    chinese = chinese.replace(char, "")
+                chinese = chinese.strip()
+                
                 audio_html = text_to_speech(chinese)
                 
                 if audio_html:
-                    typing_placeholder.empty()  # Remove typing indicator
+                    typing_placeholder.empty()
                     st.session_state.chat_history.append({
                         "role": "assistant",
-                        "content": f"This is how you pronounce, babe:\n{chinese}\n{option['pinyin']}\n{option['english']}",
+                        "content": f"This is how you pronounce, babe:\n\n{chinese}\n{option['pinyin']}\n{option['english']}",
                         "audio_html": audio_html
                     })
+                    st.rerun()
             return
             
         except Exception as e:
             print(f"Error in audio playback: {e}")
+            typing_placeholder.empty()
+            st.session_state.chat_history.append({
+                "role": "assistant",
+                "content": "Sorry babe, I couldn't play the audio right now."
+            })
+            st.rerun()
     
     # Handle normal responses
     try:
