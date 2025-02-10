@@ -458,7 +458,7 @@ if "chatbot" not in st.session_state:
     scene = st.session_state.chatbot.get_scene()
     
     if scene:
-        # Format initial message
+        # Format initial message with scene text
         initial_message = (
             f"""_(Seated at a beautifully set table, she gracefully looks up as you arrive.)_
 
@@ -475,14 +475,19 @@ _"Perfect timing. I was just admiring the ambiance—seems like you have good ta
         
         # Add options
         options_message = "\n\n🟢 **Choose your response to your babe:**\n\n"
-        for i, opt in enumerate(scene["options"], 1):
-            options_message += (
-                f"{i}️⃣ {opt['chinese']} _(❤️ +{opt['points']})_\n"
-                f"{opt['pinyin']}\n"
-                f"{opt['english']}\n\n"
-            )
+        options_message += """1️⃣ **「我特意订了座位，今晚当然要享受最好的。」** _(❤️ +12)_
+(Wǒ tèyì dìngle zuòwèi, jīnwǎn dāngrán yào xiǎngshòu zuì hǎo de.)
+_"I took the liberty of making a reservation. Only the best for tonight."_
+
+2️⃣ **「希望这里的美食能配得上这氛围。」** _(❤️ +9)_
+(Xīwàng zhèlǐ de měishí néng pèi dé shàng zhè fēnwèi.)
+_"I hope the food lives up to the atmosphere."_
+
+3️⃣ **「说实话？我只是跟着网上的好评来的。」** _(❤️ +6)_
+(Shuō shíhuà? Wǒ zhǐshì gēnzhe wǎngshàng de hǎopíng lái de.)
+_"Honestly? I just followed the best reviews online."_"""
         
-        options_message += "\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
+        options_message += "\n\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
         
         # Add to chat history with audio
         st.session_state.chat_history.append({
