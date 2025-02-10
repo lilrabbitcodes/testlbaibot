@@ -585,8 +585,8 @@ def format_message_content(content):
     
     return '\n'.join(formatted_lines)
 
-# Update the chat input handling section
-if prompt := st.chat_input("Type your message here...", key="main_chat_input"):
+def handle_chat_input(prompt):
+    """Handle chat input and return appropriate responses"""
     # Add user message to chat
     with st.chat_message("user", avatar=USER_AVATAR):
         st.markdown(prompt)
@@ -601,7 +601,7 @@ if prompt := st.chat_input("Type your message here...", key="main_chat_input"):
                 "role": "user", 
                 "content": prompt
             })
-            return  # Use return instead of continue
+            return
     
     # Handle normal responses
     try:
@@ -648,6 +648,10 @@ if prompt := st.chat_input("Type your message here...", key="main_chat_input"):
                 {"role": "user", "content": prompt},
                 {"role": "assistant", "content": "Sorry babe, I don't quite understand you."}
             ])
+
+# Update the chat input handling section
+if prompt := st.chat_input("Type your message here...", key="main_chat_input"):
+    handle_chat_input(prompt)
 
 # Add this JavaScript to automatically scroll to the latest message
 st.markdown("""
