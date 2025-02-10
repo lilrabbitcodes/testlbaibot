@@ -400,11 +400,16 @@ class LingobabeChat:
                 if response:
                     self.points += option["points"]
                     self.current_scene += 1 if self.current_scene < 5 else 0
-                    self.last_response = response["chinese"]  # Store Chinese response for audio
+                    # Extract Chinese text from response
+                    chinese_text = response["chinese"].replace("**", "").replace("「", "").replace("」", "")
+                    # Generate audio for the response
+                    audio_html = text_to_speech(chinese_text)
                     return {
                         "text": response["text"],
                         "points": self.points,
-                        "next_scene": self.get_current_scene() if self.current_scene < 6 else None
+                        "next_scene": self.get_current_scene() if self.current_scene < 6 else None,
+                        "chinese": chinese_text,
+                        "audio_html": audio_html
                     }
             
             return {"text": "Sorry babe, I don't quite understand you.", "points": self.points}
@@ -523,11 +528,6 @@ def handle_chat_input(prompt):
                 with st.chat_message("assistant", avatar=TUTOR_AVATAR):
                     st.markdown(f"This is how you pronounce: {chinese_text}, babe")
                     st.markdown(audio_html, unsafe_allow_html=True)
-                    st.session_state.chat_history.append({
-                        "role": "assistant",
-                        "content": f"This is how you pronounce: {chinese_text}, babe",
-                        "audio_html": audio_html
-                    })
         except (ValueError, IndexError):
             with st.chat_message("assistant", avatar=TUTOR_AVATAR):
                 st.markdown("Sorry babe, I don't quite understand you.")
@@ -538,6 +538,12 @@ def handle_chat_input(prompt):
     with st.chat_message("assistant", avatar=TUTOR_AVATAR):
         st.markdown(response["text"])
         st.markdown(f"\n❤️ Babe Happy Meter: {response['points']}/100")
+        
+        # Add audio player for bot's Chinese response if available
+        if "chinese" in response and "audio_html" in response:
+            st.markdown("\n🔊 Listen to my response:")
+            st.markdown(response["audio_html"], unsafe_allow_html=True)
+        
         if response.get("next_scene"):
             next_scene = response["next_scene"]
             scene_message = (
