@@ -362,7 +362,8 @@ _"A man who plans ahead—I like that. It shows confidence."_""",
                             "pinyin": "(Měihǎo de yèwǎn, cóng měihǎo de péibàn kāishǐ.)",
                             "english": "A great evening starts with great company.",
                             "points": 12,
-                            "response": {
+                            "note": "(❤️ +12, Charming & Smooth, Uses 'Company')",
+                            "lingobabe_reply": {
                                 "text": """_(Softly smirks, tilting her head.)_
 
 **「听起来很迷人，但我想看看你能否真的做到。」**
@@ -850,8 +851,8 @@ _"A comedian, huh? Alright, impress me—what's your best line?"_""",
                 if sub_response:
                     return {
                         "responses": [
-                            {"text": sub_response["response"]["text"]},
-                            {"text": sub_response["response"]["transition"], "no_audio": True}
+                            {"text": sub_response["lingobabe_reply"]["text"]},
+                            {"text": sub_response["lingobabe_reply"]["transition"], "no_audio": True}
                         ],
                         "points": scene.options[choice-1]["points"]
                     }
