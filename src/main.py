@@ -450,110 +450,73 @@ _"Their signature dishes all look tempting. Do you usually prefer traditional fl
                     "chinese": "「我偏爱传统美食，因为能品味文化的精髓。」",
                     "pinyin": "(Wǒ piān'ài chuántǒng měishí, yīnwèi néng pǐnwèi wénhuà de jīngsuì.)",
                     "english": "I prefer traditional cuisine—it lets you taste the essence of culture.",
-                    "points": 12
-                },
-                {
-                    "chinese": "「我两者都喜欢，关键是看厨师的功力。」",
-                    "pinyin": "(Wǒ liǎng zhě dōu xǐhuan, guānjiàn shì kàn chúshī de gōnglì.)",
-                    "english": "I enjoy both—it all depends on the chef's skill.",
-                    "points": 11
-                },
-                {
-                    "chinese": "「创新菜品更有趣，我喜欢惊喜。」",
-                    "pinyin": "(Chuàngxīn càipǐn gèng yǒuqù, wǒ xǐhuan jīngxǐ.)",
-                    "english": "Innovative dishes are more interesting. I like surprises.",
-                    "points": 10
-                }
-            ],
-            responses={
-                1: {
-                    "text": """_(Her eyes light up with interest.)_
+                    "points": 12,
+                    "note": "(❤️ +12, Cultural & Sophisticated, Uses 'Culture')",
+                    "lingobabe_reply": {
+                        "text": """_(Her eyes light up with interest.)_
 
 **「懂得欣赏传统的人，往往也很重视家庭价值观。说说看，你理想中的家庭生活是怎样的？」**
 
 (Dǒngdé xīnshǎng chuántǒng de rén, wǎngwǎng yě hěn zhòngshì jiātíng jiàzhíguān. Shuō shuō kàn, nǐ lǐxiǎng zhōng de jiātíng shēnghuó shì zěnyàng de?)
 
 _"Those who appreciate tradition often value family too. Tell me, what's your ideal family life like?"_""",
-                    "next_options": [
-                        {
-                            "chinese": "「温馨和睦的家庭氛围最重要，物质生活不是关键。」",
-                            "pinyin": "(Wēnxīn hémù de jiātíng fēnwéi zuì zhòngyào, wùzhì shēnghuó bú shì guānjiàn.)",
-                            "english": "A warm, harmonious family atmosphere matters most, not material things.",
-                            "points": 12
-                        },
-                        {
-                            "chinese": "「我觉得要互相支持，共同成长。」",
-                            "pinyin": "(Wǒ juéde yào hùxiāng zhīchí, gòngtóng chéngzhǎng.)",
-                            "english": "I believe in mutual support and growing together.",
-                            "points": 11
-                        },
-                        {
-                            "chinese": "「现在谈这个是不是太早了？」",
-                            "pinyin": "(Xiànzài tán zhège shì bú shì tài zǎole?)",
-                            "english": "Isn't it a bit early to discuss this?",
-                            "points": 8
-                        }
-                    ]
+                        "next_options": [
+                            {
+                                "chinese": "「温馨和睦的家庭氛围最重要，物质生活不是关键。」",
+                                "pinyin": "(Wēnxīn hémù de jiātíng fēnwéi zuì zhòngyào, wùzhì shēnghuó bú shì guānjiàn.)",
+                                "english": "A warm, harmonious family atmosphere matters most, not material things.",
+                                "points": 12,
+                                "note": "(❤️ +12, Family-Oriented & Values-Driven, Uses 'Harmony')",
+                                "lingobabe_reply": {
+                                    "text": """_(Nods warmly, clearly touched.)_
+
+**「这种价值观很难得。看来我们对家庭的理解很相似。」**
+
+(Zhè zhǒng jiàzhíguān hěn nándé. Kànlái wǒmen duì jiātíng de lǐjiě hěn xiāngsì.)
+
+_"That's a rare and beautiful perspective. Seems we share similar values about family."_""",
+                                    "transition": """_The waiter returns with your chosen dishes, each plate artfully presented._"""
+                                }
+                            }
+                        ]
+                    }
                 },
-                2: {
-                    "text": """_(Nods thoughtfully.)_
+                {
+                    "chinese": "「我两者都喜欢，关键是看厨师的功力。」",
+                    "pinyin": "(Wǒ liǎng zhě dōu xǐhuan, guānjiàn shì kàn chúshī de gōnglì.)",
+                    "english": "I enjoy both—it all depends on the chef's skill.",
+                    "points": 11,
+                    "note": "(❤️ +11, Balanced & Appreciative, Uses 'Skill')",
+                    "lingobabe_reply": {
+                        "text": """_(Nods thoughtfully.)_
 
 **「平衡的观点，很理性。那你觉得一个好厨师最重要的品质是什么？」**
 
 (Pínghéng de guāndiǎn, hěn lǐxìng. Nà nǐ juéde yī gè hǎo chúshī zuì zhòngyào de pǐnzhì shì shénme?)
 
 _"A balanced view, very rational. What do you think is the most important quality in a good chef?"_""",
-                    "next_options": [
-                        {
-                            "chinese": "「对食材的尊重和理解。」",
-                            "pinyin": "(Duì shícái de zūnzhòng hé lǐjiě.)",
-                            "english": "Respect and understanding of ingredients.",
-                            "points": 12
-                        },
-                        {
-                            "chinese": "「创造力和执行力的结合。」",
-                            "pinyin": "(Chuàngzàolì hé zhíxínglì de jiéhé.)",
-                            "english": "The combination of creativity and execution.",
-                            "points": 11
-                        },
-                        {
-                            "chinese": "「只要做出好吃的就行。」",
-                            "pinyin": "(Zhǐyào zuò chū hǎochī de jiù xíng.)",
-                            "english": "As long as it tastes good, that's what matters.",
-                            "points": 9
-                        }
-                    ]
-                },
-                3: {
-                    "text": """_(Raises an intrigued eyebrow.)_
+                        "next_options": [
+                            {
+                                "chinese": "「对食材的尊重和理解。」",
+                                "pinyin": "(Duì shícái de zūnzhòng hé lǐjiě.)",
+                                "english": "Respect and understanding of ingredients.",
+                                "points": 12,
+                                "note": "(❤️ +12, Thoughtful & Respectful, Uses 'Respect')",
+                                "lingobabe_reply": {
+                                    "text": """_(Smiles appreciatively.)_
 
-**「冒险精神，我喜欢。你最难忘的美食体验是什么？」**
+**「这个回答很有深度。确实，对食材的理解是一切美食的基础。」**
 
-(Màoxiǎn jīngshén, wǒ xǐhuan. Nǐ zuì nánwàng de měishí tǐyàn shì shénme?)
+(Zhège huídá hěn yǒu shēndù. Quèshí, duì shícái de lǐjiě shì yīqiè měishí de jīchǔ.)
 
-_"Adventurous spirit, I like that. What's your most memorable dining experience?"_""",
-                    "next_options": [
-                        {
-                            "chinese": "「在意大利乡间小店，老奶奶做的传统面食，简单但难忘。」",
-                            "pinyin": "(Zài Yìdàlì xiāngjiān xiǎodiàn, lǎo nǎinai zuò de chuántǒng miànshí, jiǎndān dàn nánwàng.)",
-                            "english": "A small restaurant in rural Italy, grandma's traditional pasta—simple but unforgettable.",
-                            "points": 12
-                        },
-                        {
-                            "chinese": "「米其林餐厅的创意美食，每道菜都是艺术品。」",
-                            "pinyin": "(Mǐqílín cāntīng de chuàngyì měishí, měi dào cài dōu shì yìshùpǐn.)",
-                            "english": "Creative dishes at a Michelin restaurant—each plate was a work of art.",
-                            "points": 11
-                        },
-                        {
-                            "chinese": "「和朋友在路边摊吃夜宵，气氛很重要。」",
-                            "pinyin": "(Hé péngyou zài lùbiān tān chī yèxiāo, qìfēn hěn zhòngyào.)",
-                            "english": "Late-night street food with friends—atmosphere matters most.",
-                            "points": 10
-                        }
-                    ]
+_"That's a profound answer. Indeed, understanding ingredients is the foundation of all great cuisine."_""",
+                                    "transition": """_The waiter approaches with your carefully selected dishes._"""
+                                }
+                            }
+                        ]
+                    }
                 }
-            }
+            ]
         )
         
         # Scene 4: Deeper Connection & Flirty Banter
