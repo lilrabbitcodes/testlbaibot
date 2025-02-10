@@ -342,7 +342,36 @@ _"Perfect timing. I was just admiring the ambiance—seems like you have good ta
                 }
             ],
             responses={
-                2: {  # Response for option 2
+                1: {
+                    "text": """_(Smiles approvingly, adjusting her napkin.)_
+
+**「懂得提前计划的男人——我喜欢。这很有自信。」**
+
+(Dǒngdé tíqián jìhuà de nánrén——wǒ xǐhuan. Zhè hěn yǒu zìxìn.)
+
+_"A man who plans ahead—I like that. It shows confidence."_""",
+                    "next_options": [
+                        {
+                            "chinese": "「美好的夜晚，从美好的陪伴开始。」",
+                            "pinyin": "(Měihǎo de yèwǎn, cóng měihǎo de péibàn kāishǐ.)",
+                            "english": "A great evening starts with great company.",
+                            "points": 12
+                        },
+                        {
+                            "chinese": "「细节很重要，尤其是这样的夜晚。」",
+                            "pinyin": "(Xìjié hěn zhòngyào, yóuqí shì zhèyàng de yèwǎn.)",
+                            "english": "Details matter, especially when the evening is important.",
+                            "points": 11
+                        },
+                        {
+                            "chinese": "「一点小小的努力，总是值得的。」",
+                            "pinyin": "(Yīdiǎn xiǎoxiǎo de nǔlì, zǒng shì zhídé de.)",
+                            "english": "Well, a little effort goes a long way.",
+                            "points": 10
+                        }
+                    ]
+                },
+                2: {
                     "text": """_(Glances at the menu, intrigued.)_
 
 **「我也这么觉得。但完美的晚餐，不仅仅是食物而已。」**
