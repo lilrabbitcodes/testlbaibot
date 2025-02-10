@@ -361,7 +361,14 @@ _"A man who plans ahead—I like that. It shows confidence."_""",
                             "chinese": "「美好的夜晚，从美好的陪伴开始。」",
                             "pinyin": "(Měihǎo de yèwǎn, cóng měihǎo de péibàn kāishǐ.)",
                             "english": "A great evening starts with great company.",
-                            "points": 12
+                            "points": 12,
+                            "response": """_(Softly smirks, tilting her head.)_
+
+**「听起来很迷人，但我想看看你能否真的做到。」**
+
+(Tīng qǐlái hěn mírén, dàn wǒ xiǎng kànkan nǐ néng fǒu zhēnde zuòdào.)
+
+_"Flattering, but let's see if you live up to your own words."_"""
                         },
                         {
                             "chinese": "「细节很重要，尤其是这样的夜晚。」",
@@ -405,11 +412,76 @@ _"I have a feeling it will. But a perfect dinner is more than just the food."_""
                             "points": 7
                         }
                     ]
+                },
+                3: {
+                    "text": """_(Raises an eyebrow, smirking.)_
+
+**「很务实的做法。那么，你是那种相信评论的人，还是喜欢自己去发现新地方？」**
+
+(Hěn wùshí de zuòfǎ. Nàme, nǐ shì nà zhǒng xiāngxìn pínglùn de rén, háishì xǐhuan zìjǐ qù fāxiàn xīn dìfāng?)
+
+_"Practical. So, do you always trust reviews, or do you like discovering places yourself?"_""",
+                    "next_options": [
+                        {
+                            "chinese": "「我相信直觉，但做点功课总是好的。」",
+                            "pinyin": "(Wǒ xiāngxìn zhíjué, dàn zuò diǎn gōngkè zǒng shì hǎo de.)",
+                            "english": "I trust my instincts. But a little research never hurts.",
+                            "points": 10
+                        },
+                        {
+                            "chinese": "「我喜欢发现隐藏的宝藏，最好的地方通常都不在大众视线里。」",
+                            "pinyin": "(Wǒ xǐhuan fāxiàn yǐncáng de bǎozàng, zuì hǎo de dìfāng tōngcháng dōu bú zài dàzhòng shìxiàn lǐ.)",
+                            "english": "I love finding hidden gems. The best places are usually off the radar.",
+                            "points": 11
+                        },
+                        {
+                            "chinese": "「说实话，我就是哪里食物好吃就去哪。」",
+                            "pinyin": "(Shuō shíhuà, wǒ jiù shì nǎlǐ shíwù hǎochī jiù qù nǎlǐ.)",
+                            "english": "To be honest, I just go where people tell me the food is good.",
+                            "points": 8
+                        }
+                    ]
                 }
             }
         )
         
-        # Add Scene 2, 3, 4, and 5...
+        # Add Scene 2: Wine & Drink Selection
+        scenes[2] = Scene(
+            scene_id=2,
+            initial_text="""_The waiter approaches, placing elegantly designed menus before you. A soft glow from the candlelight reflects off the glassware, setting the tone for a refined evening._
+
+_(Flicks her eyes toward the wine list, then back at you.)_
+
+**「我们先来点酒吧。你通常喜欢红酒、白酒，还是想尝试点特别的？」**
+
+(Wǒmen xiān lái diǎn jiǔ ba. Nǐ tōngcháng xǐhuan hóngjiǔ, báijiǔ, háishì xiǎng chángshì diǎn tèbié de?)
+
+_"Let's start with a drink. Do you usually go for red, white, or something a little more exciting?"_""",
+            options=[
+                {
+                    "chinese": "「红酒，毫无疑问。一款经典的陈年佳酿总是最有魅力。」",
+                    "pinyin": "(Hóngjiǔ, háowú yíwèn. Yī kuǎn jīngdiǎn de chénnián jiāniàng zǒng shì zuì yǒu mèilì.)",
+                    "english": "Red, always. There's something bold and timeless about a great vintage.",
+                    "points": 12
+                },
+                {
+                    "chinese": "「白酒，尤其是清爽的那种，最适合放松。」",
+                    "pinyin": "(Báijiǔ, yóuqí shì qīngshuǎng de nà zhǔng, zuì shìhé fàngsōng.)",
+                    "english": "White, especially something crisp and refreshing.",
+                    "points": 10
+                },
+                {
+                    "chinese": "「我喜欢尝试新鲜的选择，看看侍酒师会推荐什么。」",
+                    "pinyin": "(Wǒ xǐhuan chángshì xīnxiān de xuǎnzé, kànkan shìjiǔshī huì tuījiàn shénme.)",
+                    "english": "I like to mix it up. Let's see what the sommelier recommends.",
+                    "points": 11
+                }
+            ],
+            responses={
+                # Add Scene 2 responses here...
+            }
+        )
+        
         return scenes
 
     def get_current_scene(self):
