@@ -8,6 +8,7 @@ from streamlit.components.v1 import html
 import streamlit.components.v1 as components
 from dotenv import load_dotenv
 import random
+import time
 
 # Load environment variables
 load_dotenv()
@@ -564,6 +565,12 @@ def handle_chat_input(prompt):
         "content": prompt
     })
     
+    # Show typing indicator
+    with st.chat_message("assistant", avatar=TUTOR_AVATAR):
+        typing_placeholder = st.empty()
+        typing_placeholder.markdown("typing...")
+        time.sleep(1)  # Simulate typing delay
+    
     # Handle audio playback requests
     if prompt.lower().startswith("play audio"):
         try:
@@ -576,6 +583,7 @@ def handle_chat_input(prompt):
                 audio_html = text_to_speech(chinese)
                 
                 if audio_html:
+                    typing_placeholder.empty()  # Remove typing indicator
                     st.session_state.chat_history.append({
                         "role": "assistant",
                         "content": f"This is how you pronounce, babe:\n{chinese}\n{option['pinyin']}\n{option['english']}",
@@ -588,14 +596,12 @@ def handle_chat_input(prompt):
     
     # Handle normal responses
     try:
-        # Try to get choice number from prompt
         choice = None
         current_scene = st.session_state.chatbot.get_current_scene()
         
         if prompt.isdigit():
             choice = int(prompt)
         elif current_scene:
-            # Check if prompt contains any of the Chinese options
             for i, opt in enumerate(current_scene.options, 1):
                 clean_chinese = opt["chinese"].replace("**", "").replace("「", "").replace("」", "").strip()
                 clean_prompt = prompt.replace("「", "").replace("」", "").strip()
@@ -610,7 +616,8 @@ def handle_chat_input(prompt):
             chinese_text = response["text"].split("**「")[1].split("」**")[0]
             audio_html = text_to_speech(chinese_text)
             
-            # Add bot's response to chat history with audio
+            # Remove typing indicator and add bot's response
+            typing_placeholder.empty()
             st.session_state.chat_history.append({
                 "role": "assistant",
                 "content": response["text"],
@@ -631,12 +638,14 @@ def handle_chat_input(prompt):
                     "content": options_text
                 })
         else:
+            typing_placeholder.empty()
             st.session_state.chat_history.append({
                 "role": "assistant",
                 "content": "Sorry babe, I don't quite understand you."
             })
     except Exception as e:
         print(f"Error handling response: {e}")
+        typing_placeholder.empty()
         st.session_state.chat_history.append({
             "role": "assistant",
             "content": "Sorry babe, I don't quite understand you."
