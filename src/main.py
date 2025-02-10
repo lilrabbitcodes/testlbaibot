@@ -339,130 +339,111 @@ if "user_info" not in st.session_state:
         "proficiency": None
     }
 
+# Define the ChatScene class first
+class ChatScene:
+    def __init__(self, scene_text, options, responses):
+        self.scene_text = scene_text
+        self.options = options  # List of {chinese, pinyin, english, points}
+        self.responses = responses  # Dict of {choice: {text, points, next_scene}}
+
+# Define the main LingobabeChat class
+class LingobabeChat:
+    def __init__(self):
+        self.points = 50  # Starting points
+        self.current_scene = 1
+        self.chat_script = self.load_chat_script()
+
+    def load_chat_script(self):
+        """Load and parse the chat script from thechat.md"""
+        with open("src/assets/thechat.md", "r", encoding="utf-8") as f:
+            return f.read()
+
+    def get_current_scene(self):
+        """Get current scene content from chat script"""
+        scenes = self.chat_script.split("## **")
+        for scene in scenes:
+            if f"Scene {self.current_scene}:" in scene:
+                return self.parse_scene(scene)
+        return None
+
+    def parse_scene(self, scene_content):
+        """Parse scene content into structured format"""
+        parts = scene_content.split("🟢 **User MUST choose one response:**")
+        if len(parts) < 2:
+            return None
+
+        scene_text = parts[0].strip()
+        options_text = parts[1]
+        
+        options = []
+        responses = {}
+        current_option = None
+        
+        option_blocks = options_text.split("### **If User Selects")
+        first_block = option_blocks[0]
+        
+        # Parse options
+        for line in first_block.split("\n"):
+            if "「" in line and "」" in line:
+                option_num = len(options) + 1
+                chinese = line.strip()
+                pinyin = next((l.strip() for l in first_block.split("\n")[first_block.split("\n").index(line)+1:] if "(" in l), "")
+                english = next((l.strip() for l in first_block.split("\n")[first_block.split("\n").index(line)+2:] if "_" in l), "")
+                points = next((int(l.split("+")[1].split(",")[0]) for l in first_block.split("\n")[first_block.split("\n").index(line):] if "❤️" in l), 0)
+                
+                options.append({
+                    "chinese": chinese,
+                    "pinyin": pinyin,
+                    "english": english,
+                    "points": points
+                })
+        
+        # Parse responses
+        for i, block in enumerate(option_blocks[1:], 1):
+            response_lines = block.split("\n\n")
+            if len(response_lines) > 1:
+                responses[i] = response_lines[1].strip()
+
+        return {
+            "text": scene_text,
+            "options": options,
+            "responses": responses
+        }
+
+    def handle_choice(self, choice):
+        """Handle user's choice and return appropriate response"""
+        try:
+            choice = int(choice)
+            current_scene = self.get_current_scene()
+            
+            if current_scene and 1 <= choice <= 3:
+                option = current_scene["options"][choice-1]
+                response = current_scene["responses"].get(choice)
+                
+                if response:
+                    self.points += option["points"]
+                    self.current_scene += 1 if self.current_scene < 5 else 0
+                    return {
+                        "text": response,
+                        "points": self.points,
+                        "next_scene": self.get_current_scene() if self.current_scene < 6 else None
+                    }
+            
+            return {"text": "Sorry babe, I don't quite understand you.", "points": self.points}
+        except (ValueError, IndexError):
+            return {"text": "Sorry babe, I don't quite understand you.", "points": self.points}
+
 # Initialize session state
 if "chatbot" not in st.session_state:
     st.session_state.chatbot = LingobabeChat()
-    
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
-    # Display initial scene
-    initial_scene = st.session_state.chatbot.get_current_scene()
-    formatted_scene = st.session_state.chatbot.format_scene(initial_scene)
-    st.session_state.chat_history.append({
+    current_scene = st.session_state.chatbot.get_current_scene()
+    st.session_state.chat_history = [{
         "role": "assistant",
-        "content": formatted_scene
-    })
-
-# Add these constants at the top of the file with other constants
-REACTION_VIDEOS = {
-    "appreciation": "https://i.imgur.com/kDA2aub.mp4",
-    "crying": "https://i.imgur.com/CjCaHt2.mp4",
-    "cheering": "https://i.imgur.com/cMD0EoE.mp4",
-    "sighing": "https://i.imgur.com/E0rQas1.mp4",
-    "thinking": "https://i.imgur.com/KPxXcZA.mp4"
-}
-
-def should_show_video(message_count):
-    """Determine if we should show a video based on message count"""
-    # Show video every 3-5 messages (randomly)
-    return message_count % random.randint(3, 5) == 0
-
-def get_appropriate_video(message_content):
-    """Select appropriate video based on message content"""
-    # Check message content for relevant keywords/sentiment
-    content_lower = message_content.lower()
-    
-    if any(word in content_lower for word in ["谢谢", "thank", "great", "good job", "well done", "很好"]):
-        return REACTION_VIDEOS["appreciation"]
-    elif any(word in content_lower for word in ["对不起", "sorry", "sad", "难过"]):
-        return REACTION_VIDEOS["crying"]
-    elif any(word in content_lower for word in ["太棒了", "wonderful", "amazing", "excellent", "开心"]):
-        return REACTION_VIDEOS["cheering"]
-    elif any(word in content_lower for word in ["哎呀", "唉", "difficult", "hard", "不好"]):
-        return REACTION_VIDEOS["sighing"]
-    elif any(word in content_lower for word in ["让我想想", "think", "考虑", "interesting", "hmm"]):
-        return REACTION_VIDEOS["thinking"]
-    
-    # Default to thinking video if no specific sentiment is matched
-    return REACTION_VIDEOS["thinking"]
-
-def create_video_html(video_url):
-    """Create HTML for video display"""
-    return f"""
-        <div style="margin-bottom: 1rem;">
-            <video width="320" height="240" autoplay loop muted playsinline style="border-radius: 10px;">
-                <source src="{video_url}" type="video/mp4">
-            </video>
-        </div>
-    """
-
-# Process user response and update user_info
-def process_user_response(message):
-    if not st.session_state.user_info["name"]:
-        st.session_state.user_info["name"] = message
-        name_response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "assistant", "content": f"""
-你好，{message}！(nǐ hǎo, {message}!) ✨
-
-今天想喝点什么呢？(jīn tiān xiǎng hē diǎn shén me ne?)
-(What would you like to drink today?) ☕
-
-Try these phrases:
-我想要一杯... (wǒ xiǎng yào yī bēi...) - I would like a cup of...
-
----
-Word-by-Word Breakdown:
-你好 (nǐ hǎo) - hello
-今天 (jīn tiān) - today
-想 (xiǎng) - want to
-喝点 (hē diǎn) - drink something
-什么 (shén me) - what
-呢 (ne) - question particle
-我 (wǒ) - I
-想要 (xiǎng yào) - would like
-一 (yī) - one
-杯 (bēi) - cup (measure word)
-
-Common orders:
-1. 我想要一杯咖啡 
-   (wǒ xiǎng yào yī bēi kā fēi)
-   I would like a coffee
-
-2. 我想要一杯茶 
-   (wǒ xiǎng yào yī bēi chá)
-   I would like a tea
-
-3. 我想要一杯热巧克力
-   (wǒ xiǎng yào yī bēi rè qiǎo kè lì)
-   I would like a hot chocolate
-
-Type your order using one of these phrases!
-"""}
-            ]
-        )
-        name_message = name_response.choices[0].message.content
-        
-        # Generate audio for the greeting and question
-        audio_html = text_to_speech(
-            f"你好，{message}！今天想喝点什么呢？", 
-            user_name=message
-        )
-        message_id = len(st.session_state.chat_history)
-        
-        st.session_state.chat_history.append({
-            "role": "assistant",
-            "content": name_message,
-            "id": message_id
-        })
-        st.session_state.audio_elements[message_id] = audio_html
-        return "continue_chat"
-    elif not st.session_state.user_info["proficiency"]:
-        st.session_state.user_info["proficiency"] = message.lower()
-        return "normal_chat"
-    return "normal_chat"
+        "content": current_scene["text"] + "\n\n🟢 **User MUST choose one response:**\n\n" + "\n\n".join(
+            f"{i}️⃣ {opt['chinese']}\n{opt['pinyin']}\n{opt['english']}"
+            for i, opt in enumerate(current_scene["options"], 1)
+        ) + "\n\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
+    }]
 
 # Display chat history
 for message in st.session_state.chat_history:
@@ -672,105 +653,3 @@ def handle_audio_request(text):
         except ValueError:
             pass
     return None
-
-class ChatScene:
-    def __init__(self, scene_text, options, responses):
-        self.scene_text = scene_text
-        self.options = options  # List of {chinese, pinyin, english, points}
-        self.responses = responses  # Dict of {choice: {text, points, next_scene}}
-
-class LingobabeChat:
-    def __init__(self):
-        self.points = 50  # Starting points
-        self.current_scene = 1
-        self.chat_script = self.load_chat_script()
-
-    def load_chat_script(self):
-        """Load and parse the chat script from thechat.md"""
-        with open("src/assets/thechat.md", "r", encoding="utf-8") as f:
-            return f.read()
-
-    def get_current_scene(self):
-        """Get current scene content from chat script"""
-        scenes = self.chat_script.split("## **")
-        for scene in scenes:
-            if f"Scene {self.current_scene}:" in scene:
-                return self.parse_scene(scene)
-        return None
-
-    def parse_scene(self, scene_content):
-        """Parse scene content into structured format"""
-        # Split into main scene text and options
-        parts = scene_content.split("🟢 **User MUST choose one response:**")
-        if len(parts) < 2:
-            return None
-
-        scene_text = parts[0].strip()
-        options_text = parts[1]
-
-        # Parse options
-        options = []
-        responses = {}
-        
-        # Split options into blocks
-        option_blocks = options_text.split("\n\n")
-        current_option = None
-        
-        for block in option_blocks:
-            if "「" in block:  # This is an option
-                lines = block.strip().split("\n")
-                if len(lines) >= 3:
-                    option_num = len(options) + 1
-                    option = {
-                        "chinese": lines[0],
-                        "pinyin": lines[1],
-                        "english": lines[2],
-                        "points": int(lines[3].split("+")[1].split(",")[0]) if len(lines) > 3 else 0
-                    }
-                    options.append(option)
-                    current_option = option_num
-
-            elif "### **If User Selects" in block:  # This is a response
-                if current_option:
-                    response_text = block.split("\n\n")[1].strip() if len(block.split("\n\n")) > 1 else ""
-                    responses[current_option] = response_text
-
-        return {
-            "text": scene_text,
-            "options": options,
-            "responses": responses
-        }
-
-    def handle_choice(self, choice):
-        """Handle user's choice and return appropriate response"""
-        try:
-            choice = int(choice)
-            current_scene = self.get_current_scene()
-            
-            if current_scene and 1 <= choice <= 3:
-                option = current_scene["options"][choice-1]
-                response = current_scene["responses"].get(choice)
-                
-                if response:
-                    self.points += option["points"]
-                    self.current_scene += 1 if self.current_scene < 5 else 0
-                    return {
-                        "text": response,
-                        "points": self.points,
-                        "next_scene": self.get_current_scene() if self.current_scene < 6 else None
-                    }
-            
-            return {"text": "Sorry babe, I don't quite understand you.", "points": self.points}
-        except (ValueError, IndexError):
-            return {"text": "Sorry babe, I don't quite understand you.", "points": self.points}
-
-    def format_scene(self, scene):
-        """Format scene content for display"""
-        output = scene["scene_text"] + "\n\n🟢 **User MUST choose one response:**\n\n"
-        for i, opt in enumerate(scene["options"], 1):
-            output += f"{i}️⃣ {opt['chinese']}\n"
-            output += f"    {opt['pinyin']}\n"
-            output += f"    {opt['english']}\n"
-            output += f"    _(❤️ +{opt['points']})_\n\n"
-        output += "\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
-        return output
