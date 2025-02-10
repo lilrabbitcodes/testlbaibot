@@ -534,98 +534,73 @@ _"Alright, dinner's taken care of. Now tell me—what's something about you I wo
                     "chinese": "「我会说三种语言，一直以来我都喜欢挑战自己掌握新的语言。」",
                     "pinyin": "(Wǒ huì shuō sān zhǒng yǔyán, yīzhí yǐlái wǒ dōu xǐhuan tiǎozhàn zìjǐ zhǎngwò xīn de yǔyán.)",
                     "english": "I speak three languages. Always loved the challenge of mastering new ones.",
-                    "points": 12
-                },
-                {
-                    "chinese": "「我曾经一个人旅行了好几个月——这是我做过最棒的决定。」",
-                    "pinyin": "(Wǒ céngjīng yīgè rén lǚxíng le hǎojǐ gè yuè—zhè shì wǒ zuò guò zuì bàng de juédìng.)",
-                    "english": "I once traveled solo for months—best decision I ever made.",
-                    "points": 11
-                },
-                {
-                    "chinese": "「我最擅长让人发笑。如果你想听，我可以证明给你看。」",
-                    "pinyin": "(Wǒ zuì shàncháng ràng rén fāxiào. Rúguǒ nǐ xiǎng tīng, wǒ kěyǐ zhèngmíng gěi nǐ kàn.)",
-                    "english": "I have a talent for making people laugh. I'll prove it if you want.",
-                    "points": 10
-                }
-            ],
-            responses={
-                1: {
-                    "text": """_(Raises an eyebrow, intrigued.)_
+                    "points": 12,
+                    "note": "(❤️ +12, Intelligent & Impressive, Uses 'Languages')",
+                    "lingobabe_reply": {
+                        "text": """_(Raises an eyebrow, intrigued.)_
 
 **「很厉害啊！那我是不是可以期待今晚听到几句甜言蜜语呢？」**
 
 (Hěn lìhài a! Nà wǒ shì bù shì kěyǐ qídài jīnwǎn tīng dào jǐ jù tiányán mìyǔ ne?)
 
 _"Impressive. So, should I be expecting some smooth talk in another language tonight?"_""",
-                    "next_options": [
-                        {
-                            "chinese": "「那你要答应我，别太快迷上我哦。」",
-                            "pinyin": "(Nà nǐ yào dāyìng wǒ, bié tài kuài mí shàng wǒ ó.)",
-                            "english": "Only if you promise not to fall for me too quickly.",
-                            "points": 12
-                        },
-                        {
-                            "chinese": "「比起说甜言蜜语，我更喜欢用行动证明。」",
-                            "pinyin": "(Bǐqǐ shuō tiányán mìyǔ, wǒ gèng xǐhuan yòng xíngdòng zhèngmíng.)",
-                            "english": "I'd rather impress you with my actions than just words.",
-                            "points": 11
-                        },
-                        {
-                            "chinese": "「这个嘛，等下次约会再说吧，留点神秘感。」",
-                            "pinyin": "(Zhège ma, děng xià cì yuēhuì zài shuō ba, liú diǎn shénmì gǎn.)",
-                            "english": "I'll save that for our next date. A little mystery is always good, right?",
-                            "points": 10
-                        }
-                    ]
+                        "next_options": [
+                            {
+                                "chinese": "「那你要答应我，别太快迷上我哦。」",
+                                "pinyin": "(Nà nǐ yào dāyìng wǒ, bié tài kuài mí shàng wǒ ó.)",
+                                "english": "Only if you promise not to fall for me too quickly.",
+                                "points": 12,
+                                "note": "(❤️ +12, Flirty & Confident, Uses 'Promise')",
+                                "lingobabe_reply": {
+                                    "text": """_(Smirks, amused.)_
+
+**「不敢保证哦。我对有魅力的人没有抵抗力。」**
+
+(Bù gǎn bǎozhèng ó. Wǒ duì yǒu mèilì de rén méiyǒu dǐkàng lì.)
+
+_"No guarantees. I do have a weakness for charm."_""",
+                                    "transition": """_The evening continues with playful banter and shared laughter._"""
+                                }
+                            }
+                        ]
+                    }
                 },
-                2: {
-                    "text": """_(Eyes light up with curiosity.)_
+                {
+                    "chinese": "「我曾经一个人旅行了好几个月——这是我做过最棒的决定。」",
+                    "pinyin": "(Wǒ céngjīng yīgè rén lǚxíng le hǎojǐ gè yuè—zhè shì wǒ zuò guò zuì bàng de juédìng.)",
+                    "english": "I once traveled solo for months—best decision I ever made.",
+                    "points": 11,
+                    "note": "(❤️ +11, Adventurous & Independent, Uses 'Travel')",
+                    "lingobabe_reply": {
+                        "text": """_(Eyes light up with curiosity.)_
 
 **「一个人旅行？这听起来很酷！最让你难忘的经历是什么？」**
 
 (Yī gè rén lǚxíng? Zhè tīng qǐlái hěn kù! Zuì ràng nǐ nánwàng de jīnglì shì shénme?)
 
 _"A solo traveler? That's impressive. What was the most unforgettable part?"_""",
-                    "next_options": [
-                        {
-                            "chinese": "「在陌生的城市醒来，没有计划，随心所欲地探索。」",
-                            "pinyin": "(Zài mòshēng de chéngshì xǐnglái, méiyǒu jìhuà, suíxīnsuǒyù de tànsuǒ.)",
-                            "english": "Waking up in a new city with no plans—just seeing where the day takes me.",
-                            "points": 12
-                        },
-                        {
-                            "chinese": "「一路上遇到的人。陌生人有时能教会你意想不到的事情。」",
-                            "pinyin": "(Yīlù shàng yù dào de rén. Mòshēng rén yǒushí néng jiāohuì nǐ yìxiǎng bù dào de shìqíng.)",
-                            "english": "The people I met along the way. Strangers can teach you the most unexpected things.",
-                            "points": 11
-                        },
-                        {
-                            "chinese": "「完全迷路，结果却意外找到最棒的地方。」",
-                            "pinyin": "(Wánquán mílù, jiéguǒ què yìwài zhǎodào zuì bàng de dìfāng.)",
-                            "english": "Getting completely lost and ending up in the best place by accident.",
-                            "points": 10
-                        }
-                    ]
-                },
-                3: {
-                    "text": """_(Smirks, tilting her head slightly.)_
+                        "next_options": [
+                            {
+                                "chinese": "「在陌生的城市醒来，没有计划，随心所欲地探索。」",
+                                "pinyin": "(Zài mòshēng de chéngshì xǐnglái, méiyǒu jìhuà, suíxīnsuǒyù de tànsuǒ.)",
+                                "english": "Waking up in a new city with no plans—just seeing where the day takes me.",
+                                "points": 12,
+                                "note": "(❤️ +12, Adventurous & Free-Spirited, Uses 'City')",
+                                "lingobabe_reply": {
+                                    "text": """_(Smiles, nodding.)_
 
-**「哦？是吗？那来吧，让我看看你的幽默感有多强。」**
+**「听起来像是一场梦幻之旅。下次旅行，我是不是需要一个向导？」**
 
-(Ò? Shì ma? Nà lái ba, ràng wǒ kànkan nǐ de yōumò gǎn yǒu duō qiáng.)
+(Tīng qǐlái xiàng shì yī chǎng mènghuà zhī lǚ. Xià cì lǚxíng, wǒ shì bù shì xūyào yī gè xiàngdǎo?)
 
-_"A comedian, huh? Alright, impress me—what's your best line?"_""",
-                    "next_options": [
-                        {
-                            "chinese": "「我可以讲个笑话，但我更喜欢自然地让你笑出来。」",
-                            "pinyin": "(Wǒ kěyǐ jiǎng gè xiàohuà, dàn wǒ gèng xǐhuan zìrán de ràng nǐ xiào chūlái.)",
-                            "english": "I could tell you a joke, but I'd rather make you laugh the natural way.",
-                            "points": 12
-                        }
-                    ]
+_"That sounds like a dream. Maybe I need a guide for my next trip."_""",
+                                    "transition": """_The conversation flows naturally as the evening progresses._"""
+                                }
+                            }
+                        ]
+                    }
                 }
-            }
+            ]
         )
         
         # Add Scene 5...
