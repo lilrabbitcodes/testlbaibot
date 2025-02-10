@@ -332,7 +332,8 @@ _"Perfect timing. I was just admiring the ambiance—seems like you have good ta
                     "chinese": "「我特意订了座位，今晚当然要享受最好的。」",
                     "pinyin": "(Wǒ tèyì dìngle zuòwèi, jīnwǎn dāngrán yào xiǎngshòu zuì hǎo de.)",
                     "english": "I took the liberty of making a reservation. Only the best for tonight.",
-                    "points": 12
+                    "points": 12,
+                    "note": "(❤️ +12, Confident & Thoughtful, Uses 'Reservation')"
                 },
                 {
                     "chinese": "「希望这里的美食能配得上这氛围。」",
@@ -1021,12 +1022,9 @@ def handle_chat_input(prompt):
                 chinese_text = response["text"].split("**")[1].split("」**")[0]
                 audio_html = text_to_speech(chinese_text)
                 
-                # Format the response without the (Scene transitions smoothly.) text
-                response_text = response["text"].replace("(Scene transitions smoothly.)", "").strip()
-                
                 st.session_state.chat_history.append({
                     "role": "assistant",
-                    "content": response_text,
+                    "content": response["text"],
                     "audio_html": audio_html
                 })
             
