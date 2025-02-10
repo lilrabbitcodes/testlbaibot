@@ -301,23 +301,11 @@ if "user_info" not in st.session_state:
     }
 
 class Scene:
-    def __init__(self, scene_id, initial_text, options):
+    def __init__(self, scene_id, initial_text, options, responses):
         self.scene_id = scene_id
         self.initial_text = initial_text
-        self.options = options  # List of {chinese, pinyin, english, points, note, lingobabe_reply}
-    
-    def handle_choice(self, choice):
-        """Handle user choice and return appropriate response"""
-        if 1 <= choice <= len(self.options):
-            option = self.options[choice-1]
-            if "lingobabe_reply" in option:
-                return {
-                    "text": option["lingobabe_reply"]["text"],
-                    "transition": option["lingobabe_reply"].get("transition", ""),
-                    "points": option["points"],
-                    "next_options": option["lingobabe_reply"].get("next_options", [])
-                }
-        return None
+        self.options = options  # List of {chinese, pinyin, english}
+        self.responses = responses  # Dict of {choice: {text, next_options}}
 
 class LingobabeChat:
     def __init__(self):
@@ -344,298 +332,84 @@ _"Perfect timing. I was just admiring the ambiance—seems like you have good ta
                     "chinese": "「我特意订了座位，今晚当然要享受最好的。」",
                     "pinyin": "(Wǒ tèyì dìngle zuòwèi, jīnwǎn dāngrán yào xiǎngshòu zuì hǎo de.)",
                     "english": "I took the liberty of making a reservation. Only the best for tonight.",
-                    "points": 12,
-                    "note": "(❤️ +12, Confident & Thoughtful, Uses 'Reservation')",
-                    "lingobabe_reply": {
-                        "text": """_(Smiles approvingly, adjusting her napkin.)_
+                    "points": 12
+                },
+                {
+                    "chinese": "「希望这里的美食能配得上这氛围。」",
+                    "pinyin": "(Xīwàng zhèlǐ de měishí néng pèi dé shàng zhè fēnwèi.)",
+                    "english": "I hope the food lives up to the atmosphere.",
+                    "points": 9
+                },
+                {
+                    "chinese": "「说实话？我只是跟着网上的好评来的。」",
+                    "pinyin": "(Shuō shíhuà? Wǒ zhǐshì gēnzhe wǎngshàng de hǎopíng lái de.)",
+                    "english": "Honestly? I just followed the best reviews online.",
+                    "points": 6
+                }
+            ],
+            responses={
+                1: {
+                    "text": """_(Smiles approvingly, adjusting her napkin.)_
 
 **「懂得提前计划的男人——我喜欢。这很有自信。」**
 
 (Dǒngdé tíqián jìhuà de nánrén——wǒ xǐhuan. Zhè hěn yǒu zìxìn.)
 
 _"A man who plans ahead—I like that. It shows confidence."_""",
-                        "next_options": [
-                            {
-                                "chinese": "「美好的夜晚，从美好的陪伴开始。」",
-                                "pinyin": "(Měihǎo de yèwǎn, cóng měihǎo de péibàn kāishǐ.)",
-                                "english": "A great evening starts with great company.",
-                                "points": 12,
-                                "note": "(❤️ +12, Charming & Smooth, Uses 'Company')",
-                                "lingobabe_reply": {
-                                    "text": """_(Softly smirks, tilting her head.)_
-
-**「听起来很迷人，但我想看看你能否真的做到。」**
-
-(Tīng qǐlái hěn mírén, dàn wǒ xiǎng kànkan nǐ néng fǒu zhēnde zuòdào.)
-
-_"Flattering, but let's see if you live up to your own words."_""",
-                                    "transition": """_The waiter approaches, placing elegantly designed menus before you. A soft glow from the candlelight reflects off the glassware, setting the tone for a refined evening._
-
-**「我们先来点酒吧。你通常喜欢红酒、白酒，还是想尝试点特别的？」**
-
-(Wǒmen xiān lái diǎn jiǔ ba. Nǐ tōngcháng xǐhuan hóngjiǔ, báijiǔ, háishì xiǎng chángshì diǎn tèbié de?)
-
-_"Let's start with a drink. Do you usually go for red, white, or something a little more exciting?"_"""
-                                }
-                            }
-                        ]
-                    }
+                    "next_options": [
+                        {
+                            "chinese": "「美好的夜晚，从美好的陪伴开始。」",
+                            "pinyin": "(Měihǎo de yèwǎn, cóng měihǎo de péibàn kāishǐ.)",
+                            "english": "A great evening starts with great company.",
+                            "points": 12
+                        },
+                        {
+                            "chinese": "「细节很重要，尤其是这样的夜晚。」",
+                            "pinyin": "(Xìjié hěn zhòngyào, yóuqí shì zhèyàng de yèwǎn.)",
+                            "english": "Details matter, especially when the evening is important.",
+                            "points": 11
+                        },
+                        {
+                            "chinese": "「一点小小的努力，总是值得的。」",
+                            "pinyin": "(Yīdiǎn xiǎoxiǎo de nǔlì, zǒng shì zhídé de.)",
+                            "english": "Well, a little effort goes a long way.",
+                            "points": 10
+                        }
+                    ]
                 },
-                {
-                    "chinese": "「希望这里的美食能配得上这氛围。」",
-                    "pinyin": "(Xīwàng zhèlǐ de měishí néng pèi dé shàng zhè fēnwèi.)",
-                    "english": "I hope the food lives up to the atmosphere.",
-                    "points": 9,
-                    "note": "(❤️ +9, Casual but Engaging, Uses 'Atmosphere')",
-                    "lingobabe_reply": {
-                        "text": """_(Glances at the menu, intrigued.)_
+                2: {
+                    "text": """_(Glances at the menu, intrigued.)_
 
 **「我也这么觉得。但完美的晚餐，不仅仅是食物而已。」**
 
 (Wǒ yě zhème juéde. Dàn wánměi de wǎncān, bù jǐnjǐn shì shíwù éryǐ.)
 
-_"I have a feeling it will. But a perfect dinner is more than just the food."_"""
-                    }
-                },
-                {
-                    "chinese": "「说实话？我只是跟着网上的好评来的。」",
-                    "pinyin": "(Shuō shíhuà? Wǒ zhǐshì gēnzhe wǎngshàng de hǎopíng lái de.)",
-                    "english": "Honestly? I just followed the best reviews online.",
-                    "points": 6,
-                    "note": "(❤️ +6, Playful but Less Effort, Uses 'Reviews')",
-                    "lingobabe_reply": {
-                        "text": """_(Raises an eyebrow, smirking.)_
-
-**「很务实的做法。那么，你是那种相信评论的人，还是喜欢自己去发现新地方？」**
-
-(Hěn wùshí de zuòfǎ. Nàme, nǐ shì nà zhǒng xiāngxìn pínglùn de rén, háishì xǐhuan zìjǐ qù fāxiàn xīn dìfāng?)
-
-_"Practical. So, do you always trust reviews, or do you like discovering places yourself?"_"""
-                    }
+_"I have a feeling it will. But a perfect dinner is more than just the food."_""",
+                    "next_options": [
+                        {
+                            "chinese": "「确实如此。美好的氛围、可口的食物，再加上一位美丽的约会对象，才能令人难忘。」",
+                            "pinyin": "(Quèshí rúcǐ. Měihǎo de fēnwèi, kěkǒu de shíwù, zài jiā shàng yī wèi měilì de yuēhuì duìxiàng, cáinéng lìng rén nánwàng.)",
+                            "english": "True. A great ambiance, good food, and a beautiful date make it unforgettable.",
+                            "points": 11
+                        },
+                        {
+                            "chinese": "「我认为完美的体验在于平衡——环境、味道、还有陪伴。」",
+                            "pinyin": "(Wǒ rènwéi wánměi de tǐyàn zàiyú pínghéng——huánjìng, wèidào, háiyǒu péibàn.)",
+                            "english": "I believe every experience is about balance—the setting, the flavors, the company.",
+                            "points": 10
+                        },
+                        {
+                            "chinese": "「我只是为了吃好吃的来的。只要好吃，我就满足了。」",
+                            "pinyin": "(Wǒ zhǐshì wèile chī hǎochī de lái de. Zhǐyào hǎochī, wǒ jiù mǎnzú le.)",
+                            "english": "I'm just here for the food. If it's good, I'll be happy.",
+                            "points": 7
+                        }
+                    ]
                 }
-            ]
+            }
         )
         
-        # Scene 2: Wine & Drink Selection
-        scenes[2] = Scene(
-            scene_id=2,
-            initial_text="""_(Flicks her eyes toward the wine list, then back at you.)_
-
-**「我们先来点酒吧。你通常喜欢红酒、白酒，还是想尝试点特别的？」**
-
-(Wǒmen xiān lái diǎn jiǔ ba. Nǐ tōngcháng xǐhuan hóngjiǔ, báijiǔ, háishì xiǎng chángshì diǎn tèbié de?)
-
-_"Let's start with a drink. Do you usually go for red, white, or something a little more exciting?"_""",
-            options=[
-                {
-                    "chinese": "「红酒，毫无疑问。一款经典的陈年佳酿总是最有魅力。」",
-                    "pinyin": "(Hóngjiǔ, háowú yíwèn. Yī kuǎn jīngdiǎn de chénnián jiāniàng zǒng shì zuì yǒu mèilì.)",
-                    "english": "Red, always. There's something bold and timeless about a great vintage.",
-                    "points": 12,
-                    "note": "(❤️ +12, Sophisticated & Classic, Uses 'Vintage')",
-                    "lingobabe_reply": {
-                        "text": """_(Nods with appreciation.)_
-
-**「懂酒的男人很有魅力。让我猜猜——你是做什么工作的？」**
-
-(Dǒng jiǔ de nánrén hěn yǒu mèilì. Ràng wǒ cāi cāi——nǐ shì zuò shénme gōngzuò de?)
-
-_"A man who knows his wine is attractive. Let me guess—what do you do for work?"_""",
-                        "next_options": [
-                            {
-                                "chinese": "「我在金融行业工作，压力挺大的，所以更懂得享受生活。」",
-                                "pinyin": "(Wǒ zài jīnróng hángyè gōngzuò, yālì tǐng dà de, suǒyǐ gèng dǒngdé xiǎngshòu shēnghuó.)",
-                                "english": "I work in finance. High pressure, so I've learned to enjoy life's pleasures.",
-                                "points": 12,
-                                "note": "(❤️ +12, Successful & Balanced, Uses 'Finance')",
-                                "lingobabe_reply": {
-                                    "text": """_(Nods approvingly.)_
-
-**「压力下还能保持品味，很不容易。」**
-
-(Yālì xià hái néng bǎochí pǐnwèi, hěn bù róngyì.)
-
-_"Maintaining such taste under pressure—that's impressive."_""",
-                                    "transition": """_The sommelier approaches with the wine list, waiting patiently for your selection._"""
-                                }
-                            }
-                        ]
-                    }
-                }
-            ]
-        )
-        
-        # Scene 3: Food Selection
-        scenes[3] = Scene(
-            scene_id=3,
-            initial_text="""_The sommelier pours your chosen wine with practiced grace. As the rich aroma fills the air, Lingobabe opens her menu._
-
-_(Studying the menu with elegant interest.)_
-
-**「这里的招牌菜看起来都很诱人。你平时更喜欢传统口味还是创新菜品？」**
-
-(Zhèlǐ de zhāopāi cài kàn qǐlái dōu hěn yòurén. Nǐ píngshí gèng xǐhuan chuántǒng kǒuwèi háishì chuàngxīn càipǐn?)
-
-_"Their signature dishes all look tempting. Do you usually prefer traditional flavors or innovative cuisine?"_""",
-            options=[
-                {
-                    "chinese": "「我偏爱传统美食，因为能品味文化的精髓。」",
-                    "pinyin": "(Wǒ piān'ài chuántǒng měishí, yīnwèi néng pǐnwèi wénhuà de jīngsuì.)",
-                    "english": "I prefer traditional cuisine—it lets you taste the essence of culture.",
-                    "points": 12,
-                    "note": "(❤️ +12, Cultural & Sophisticated, Uses 'Culture')",
-                    "lingobabe_reply": {
-                        "text": """_(Her eyes light up with interest.)_
-
-**「懂得欣赏传统的人，往往也很重视家庭价值观。说说看，你理想中的家庭生活是怎样的？」**
-
-(Dǒngdé xīnshǎng chuántǒng de rén, wǎngwǎng yě hěn zhòngshì jiātíng jiàzhíguān. Shuō shuō kàn, nǐ lǐxiǎng zhōng de jiātíng shēnghuó shì zěnyàng de?)
-
-_"Those who appreciate tradition often value family too. Tell me, what's your ideal family life like?"_""",
-                        "next_options": [
-                            {
-                                "chinese": "「温馨和睦的家庭氛围最重要，物质生活不是关键。」",
-                                "pinyin": "(Wēnxīn hémù de jiātíng fēnwéi zuì zhòngyào, wùzhì shēnghuó bú shì guānjiàn.)",
-                                "english": "A warm, harmonious family atmosphere matters most, not material things.",
-                                "points": 12,
-                                "note": "(❤️ +12, Family-Oriented & Values-Driven, Uses 'Harmony')",
-                                "lingobabe_reply": {
-                                    "text": """_(Nods warmly, clearly touched.)_
-
-**「这种价值观很难得。看来我们对家庭的理解很相似。」**
-
-(Zhè zhǒng jiàzhíguān hěn nándé. Kànlái wǒmen duì jiātíng de lǐjiě hěn xiāngsì.)
-
-_"That's a rare and beautiful perspective. Seems we share similar values about family."_""",
-                                    "transition": """_The waiter returns with your chosen dishes, each plate artfully presented._"""
-                                }
-                            }
-                        ]
-                    }
-                },
-                {
-                    "chinese": "「我两者都喜欢，关键是看厨师的功力。」",
-                    "pinyin": "(Wǒ liǎng zhě dōu xǐhuan, guānjiàn shì kàn chúshī de gōnglì.)",
-                    "english": "I enjoy both—it all depends on the chef's skill.",
-                    "points": 11,
-                    "note": "(❤️ +11, Balanced & Appreciative, Uses 'Skill')",
-                    "lingobabe_reply": {
-                        "text": """_(Nods thoughtfully.)_
-
-**「平衡的观点，很理性。那你觉得一个好厨师最重要的品质是什么？」**
-
-(Pínghéng de guāndiǎn, hěn lǐxìng. Nà nǐ juéde yī gè hǎo chúshī zuì zhòngyào de pǐnzhì shì shénme?)
-
-_"A balanced view, very rational. What do you think is the most important quality in a good chef?"_""",
-                        "next_options": [
-                            {
-                                "chinese": "「对食材的尊重和理解。」",
-                                "pinyin": "(Duì shícái de zūnzhòng hé lǐjiě.)",
-                                "english": "Respect and understanding of ingredients.",
-                                "points": 12,
-                                "note": "(❤️ +12, Thoughtful & Respectful, Uses 'Respect')",
-                                "lingobabe_reply": {
-                                    "text": """_(Smiles appreciatively.)_
-
-**「这个回答很有深度。确实，对食材的理解是一切美食的基础。」**
-
-(Zhège huídá hěn yǒu shēndù. Quèshí, duì shícái de lǐjiě shì yīqiè měishí de jīchǔ.)
-
-_"That's a profound answer. Indeed, understanding ingredients is the foundation of all great cuisine."_""",
-                                    "transition": """_The waiter approaches with your carefully selected dishes._"""
-                                }
-                            }
-                        ]
-                    }
-                }
-            ]
-        )
-        
-        # Scene 4: Deeper Connection & Flirty Banter
-        scenes[4] = Scene(
-            scene_id=4,
-            initial_text="""_(Resting her chin on her hand, she studies you with amused curiosity.)_
-
-**「好了，晚餐点完了。现在告诉我——有什么是我光看你，猜不到的？」**
-
-(Gǎo le, wǎncān diǎn wán le. Xiànzài gàosù wǒ—yǒu shé me shì wǒ guāng kàn nǐ, cāi bù dào de?)
-
-_"Alright, dinner's taken care of. Now tell me—what's something about you I wouldn't guess just by looking at you?"_""",
-            options=[
-                {
-                    "chinese": "「我会说三种语言，一直以来我都喜欢挑战自己掌握新的语言。」",
-                    "pinyin": "(Wǒ huì shuō sān zhǒng yǔyán, yīzhí yǐlái wǒ dōu xǐhuan tiǎozhàn zìjǐ zhǎngwò xīn de yǔyán.)",
-                    "english": "I speak three languages. Always loved the challenge of mastering new ones.",
-                    "points": 12,
-                    "note": "(❤️ +12, Intelligent & Impressive, Uses 'Languages')",
-                    "lingobabe_reply": {
-                        "text": """_(Raises an eyebrow, intrigued.)_
-
-**「很厉害啊！那我是不是可以期待今晚听到几句甜言蜜语呢？」**
-
-(Hěn lìhài a! Nà wǒ shì bù shì kěyǐ qídài jīnwǎn tīng dào jǐ jù tiányán mìyǔ ne?)
-
-_"Impressive. So, should I be expecting some smooth talk in another language tonight?"_""",
-                        "next_options": [
-                            {
-                                "chinese": "「那你要答应我，别太快迷上我哦。」",
-                                "pinyin": "(Nà nǐ yào dāyìng wǒ, bié tài kuài mí shàng wǒ ó.)",
-                                "english": "Only if you promise not to fall for me too quickly.",
-                                "points": 12,
-                                "note": "(❤️ +12, Flirty & Confident, Uses 'Promise')",
-                                "lingobabe_reply": {
-                                    "text": """_(Smirks, amused.)_
-
-**「不敢保证哦。我对有魅力的人没有抵抗力。」**
-
-(Bù gǎn bǎozhèng ó. Wǒ duì yǒu mèilì de rén méiyǒu dǐkàng lì.)
-
-_"No guarantees. I do have a weakness for charm."_""",
-                                    "transition": """_The evening continues with playful banter and shared laughter._"""
-                                }
-                            }
-                        ]
-                    }
-                },
-                {
-                    "chinese": "「我曾经一个人旅行了好几个月——这是我做过最棒的决定。」",
-                    "pinyin": "(Wǒ céngjīng yīgè rén lǚxíng le hǎojǐ gè yuè—zhè shì wǒ zuò guò zuì bàng de juédìng.)",
-                    "english": "I once traveled solo for months—best decision I ever made.",
-                    "points": 11,
-                    "note": "(❤️ +11, Adventurous & Independent, Uses 'Travel')",
-                    "lingobabe_reply": {
-                        "text": """_(Eyes light up with curiosity.)_
-
-**「一个人旅行？这听起来很酷！最让你难忘的经历是什么？」**
-
-(Yī gè rén lǚxíng? Zhè tīng qǐlái hěn kù! Zuì ràng nǐ nánwàng de jīnglì shì shénme?)
-
-_"A solo traveler? That's impressive. What was the most unforgettable part?"_""",
-                        "next_options": [
-                            {
-                                "chinese": "「在陌生的城市醒来，没有计划，随心所欲地探索。」",
-                                "pinyin": "(Zài mòshēng de chéngshì xǐnglái, méiyǒu jìhuà, suíxīnsuǒyù de tànsuǒ.)",
-                                "english": "Waking up in a new city with no plans—just seeing where the day takes me.",
-                                "points": 12,
-                                "note": "(❤️ +12, Adventurous & Free-Spirited, Uses 'City')",
-                                "lingobabe_reply": {
-                                    "text": """_(Smiles, nodding.)_
-
-**「听起来像是一场梦幻之旅。下次旅行，我是不是需要一个向导？」**
-
-(Tīng qǐlái xiàng shì yī chǎng mènghuà zhī lǚ. Xià cì lǚxíng, wǒ shì bù shì xūyào yī gè xiàngdǎo?)
-
-_"That sounds like a dream. Maybe I need a guide for my next trip."_""",
-                                    "transition": """_The conversation flows naturally as the evening progresses._"""
-                                }
-                            }
-                        ]
-                    }
-                }
-            ]
-        )
-        
-        # Add Scene 5...
+        # Add Scene 2, 3, 4, and 5...
         return scenes
 
     def get_current_scene(self):
@@ -645,24 +419,20 @@ _"That sounds like a dream. Maybe I need a guide for my next trip."_""",
     def handle_choice(self, choice):
         """Process user choice and return appropriate response"""
         scene = self.get_current_scene()
-        if not scene:
-            return {"text": "Sorry babe, I don't quite understand you. Try choosing one of the options."}
-        
-        # Get the selected option
-        if not (1 <= choice <= len(scene.options)):
-            return {"text": "Sorry babe, I don't quite understand you. Try choosing one of the options."}
+        if not scene or choice not in [1, 2, 3]:
+            return {"text": "Sorry babe, I don't quite understand you."}
             
-        option = scene.options[choice-1]
-        if "lingobabe_reply" in option:
-            self.points += option["points"]
+        response = scene.responses.get(choice)
+        if response:
+            self.points += scene.options[choice-1]["points"]
+            self.current_scene += 1
             return {
-                "text": option["lingobabe_reply"]["text"],
-                "transition": option["lingobabe_reply"].get("transition", ""),
+                "text": response["text"],
                 "points": self.points,
-                "next_options": option["lingobabe_reply"].get("next_options", [])
+                "next_options": response.get("next_options")
             }
         
-        return {"text": "Sorry babe, I don't quite understand you. Try choosing one of the options."}
+        return {"text": "Sorry babe, I don't quite understand you."}
 
 # Initialize session state variables
 if "chat_history" not in st.session_state:
@@ -673,19 +443,32 @@ if "chatbot" not in st.session_state:
     scene = st.session_state.chatbot.get_current_scene()
     
     if scene:
-        # Format initial message with scene text and all options
-        initial_message = scene.initial_text
+        # Format initial message with scene text
+        initial_message = (
+            f"""_(Seated at a beautifully set table, she gracefully looks up as you arrive.)_
+
+**「刚刚好，我正欣赏着这里的氛围——看来你的品味不错。」**
+
+(Gānggāng hǎo, wǒ zhèng xīnshǎng zhe zhèlǐ de fēnwèi——kànlái nǐ de pǐnwèi búcuò.)
+
+_"Perfect timing. I was just admiring the ambiance—seems like you have good taste."_"""
+        )
         
         # Generate audio for first message
-        first_chinese = scene.initial_text.split("**")[1].split("」**")[0]
+        first_chinese = "刚刚好，我正欣赏着这里的氛围——看来你的品味不错。"
         first_audio = text_to_speech(first_chinese)
         
-        # Add all options
+        # Add options with new formatting
         options_message = "\n\n🟢 Choose your response to your babe:\n\n"
-        for i, opt in enumerate(scene.options, 1):
-            options_message += f"{i}️⃣ {opt['chinese']} {opt['pinyin']} {opt['english']} {opt['note']}\n\n"
+        options_message += """1️⃣ 「我特意订了座位，今晚当然要享受最好的。」 (Wǒ tèyì dìngle zuòwèi, jīnwǎn dāngrán yào xiǎngshòu zuì hǎo de.) "I took the liberty of making a reservation. Only the best for tonight."
+
+2️⃣ 「希望这里的美食能配得上这氛围。」 (Xīwàng zhèlǐ de měishí néng pèi dé shàng zhè fēnwèi.) "I hope the food lives up to the atmosphere."
+
+3️⃣ 「说实话？我只是跟着网上的好评来的。」 (Shuō shíhuà? Wǒ zhǐshì gēnzhe wǎngshàng de hǎopíng lái de.) "Honestly? I just followed the best reviews online."
+
+-"""
         
-        options_message += "🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
+        options_message += "\n\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
         
         # Add to chat history with audio
         st.session_state.chat_history.append({
@@ -745,7 +528,7 @@ def format_message_content(content):
             formatted_lines.extend(['', line, ''])
             
         # Handle suggested responses section
-        elif line.startswith('Suggested Responses:') or line.startswith('�� Try'):
+        elif line.startswith('Suggested Responses:') or line.startswith('👉 Try'):
             formatted_lines.extend([
                 '',
                 '---',
@@ -780,10 +563,61 @@ def format_message_content(content):
     return '\n'.join(formatted_lines)
 
 def handle_chat_input(prompt):
-    try:
+    """Handle chat input and return appropriate responses"""
+    # Add user message to history
+    st.session_state.chat_history.append({
+        "role": "user",
+        "content": prompt
+    })
+    
+    # Show animated typing indicator
+    with st.chat_message("assistant", avatar=TUTOR_AVATAR):
         typing_placeholder = st.empty()
-        typing_placeholder.markdown("_Lingobabe is typing..._")
-        
+        typing_placeholder.markdown("""
+            <div class="typing-indicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        """, unsafe_allow_html=True)
+        time.sleep(1)  # Simulate typing delay
+    
+    # Handle audio playback requests
+    if prompt.lower().startswith("play audio"):
+        try:
+            option_num = int(prompt.split()[-1])
+            current_scene = st.session_state.chatbot.get_current_scene()
+            
+            if current_scene and 1 <= option_num <= 3:
+                option = current_scene.options[option_num-1]
+                chinese = option["chinese"]
+                for char in ["「", "」", "**"]:
+                    chinese = chinese.replace(char, "")
+                chinese = chinese.strip()
+                
+                audio_html = text_to_speech(chinese)
+                
+                if audio_html:
+                    typing_placeholder.empty()
+                    st.session_state.chat_history.append({
+                        "role": "assistant",
+                        "content": f"This is how you pronounce, babe:\n\n{chinese}\n{option['pinyin']}\n{option['english']}",
+                        "audio_html": audio_html
+                    })
+                    st.rerun()
+            return
+            
+        except Exception as e:
+            print(f"Error in audio playback: {e}")
+            typing_placeholder.empty()
+            st.session_state.chat_history.append({
+                "role": "assistant",
+                "content": "Sorry babe, I couldn't play the audio right now."
+            })
+            st.rerun()
+    
+    # Handle normal responses
+    try:
         choice = None
         current_scene = st.session_state.chatbot.get_current_scene()
         
@@ -793,45 +627,34 @@ def handle_chat_input(prompt):
             for i, opt in enumerate(current_scene.options, 1):
                 clean_chinese = opt["chinese"].replace("**", "").replace("「", "").replace("」", "").strip()
                 clean_prompt = prompt.replace("「", "").replace("」", "").strip()
-                if clean_chinese in clean_prompt or clean_prompt in clean_prompt:
+                if clean_chinese in clean_prompt or clean_prompt in clean_chinese:
                     choice = i
                     break
         
         if choice and 1 <= choice <= 3:
             response = st.session_state.chatbot.handle_choice(choice)
+            points = current_scene.options[choice-1]["points"]
             
-            # Remove typing indicator
+            # Extract Chinese text from response for audio
+            chinese_text = response["text"].split("**「")[1].split("」**")[0]
+            audio_html = text_to_speech(chinese_text)
+            
+            # Remove typing indicator and add bot's response with points
             typing_placeholder.empty()
+            st.session_state.chat_history.append({
+                "role": "assistant",
+                "content": f"{response['text']}\n\n❤️ Babe Happiness Meter: {response['points']}/100 (+{points} points)",
+                "audio_html": audio_html
+            })
             
-            # Add Lingobabe's immediate reply with points
-            if "text" in response:
-                chinese_text = response["text"].split("**")[1].split("」**")[0]
-                audio_html = text_to_speech(chinese_text)
-                
-                st.session_state.chat_history.append({
-                    "role": "assistant",
-                    "content": f"{response['text']}\n\n❤️ Babe Happiness Meter: {response['points']}/100",
-                    "audio_html": audio_html
-                })
-            
-            # Add scene transition as a separate message
-            if "transition" in response:
-                st.session_state.chat_history.append({
-                    "role": "assistant",
-                    "content": response["transition"],
-                    "no_audio": True
-                })
-            
-            # If there's next options, add them to chat history
-            if "next_options" in response:
+            # If there's a next scene, add it to chat history
+            if "next_options" in response and response["next_options"]:
+                next_scene = response["next_options"]
                 options_text = "\n\n🟢 Choose your response to your babe:\n\n"
-                for i, opt in enumerate(response["next_options"], 1):
-                    chinese = opt['chinese']
-                    pinyin = opt['pinyin']
-                    english = opt['english']
-                    note = opt.get('note', '')
-                    options_text += f"{i}️⃣ {chinese} {pinyin} {english} {note}\n\n"
-                options_text += "🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
+                for i, opt in enumerate(next_scene, 1):
+                    chinese = opt['chinese'].replace('**', '')
+                    options_text += f"{i}️⃣ {chinese} {opt['pinyin']} {opt['english']}\n\n"
+                options_text += "-\n\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
                 
                 st.session_state.chat_history.append({
                     "role": "assistant",
@@ -841,14 +664,14 @@ def handle_chat_input(prompt):
             typing_placeholder.empty()
             st.session_state.chat_history.append({
                 "role": "assistant",
-                "content": "Sorry babe, I don't quite understand you. Try choosing one of the options."
+                "content": "Sorry babe, I don't quite understand you."
             })
     except Exception as e:
         print(f"Error handling response: {e}")
         typing_placeholder.empty()
         st.session_state.chat_history.append({
-            "role": "assistant", 
-            "content": "Sorry babe, I don't quite understand you. Try choosing one of the options."
+            "role": "assistant",
+            "content": "Sorry babe, I don't quite understand you."
         })
     
     st.rerun()
