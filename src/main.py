@@ -595,7 +595,6 @@ def handle_chat_input(prompt):
                 audio_html = text_to_speech(chinese)
                 
                 if audio_html:
-                    # Add bot's response to chat history
                     st.session_state.chat_history.append({
                         "role": "assistant",
                         "content": f"This is how you pronounce, babe:\n{chinese}\n{option['pinyin']}\n{option['english']}",
@@ -621,14 +620,21 @@ def handle_chat_input(prompt):
             # If there's a next scene, add it to chat history
             if "next_scene" in response and response["next_scene"]:
                 next_scene = response["next_scene"]
+                scene_text = next_scene["text"]
+                
+                # Format options according to thechat.md structure
                 options_text = "\n\n🟢 Choose your response to your babe:\n\n"
                 for i, opt in enumerate(next_scene["options"], 1):
-                    options_text += f"{i}️⃣ {opt['chinese'].replace('**', '')} {opt['pinyin']} {opt['english'].replace('_', '')}\n"
-                options_text += "\n-\n\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
+                    chinese = opt['chinese'].replace('**', '')
+                    options_text += (
+                        f"{i}️⃣ {chinese} {opt['pinyin']} {opt['english'].replace('_', '')}\n\n"
+                    )
+                options_text += "-\n\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
                 
+                # Add scene and options to chat history
                 st.session_state.chat_history.append({
                     "role": "assistant",
-                    "content": f"{next_scene['text']}{options_text}"
+                    "content": f"{scene_text}{options_text}"
                 })
         else:
             st.session_state.chat_history.append({
