@@ -339,54 +339,19 @@ if "user_info" not in st.session_state:
         "proficiency": None
     }
 
-# Initialize chat history with first message if empty
+# Initialize session state
+if "chatbot" not in st.session_state:
+    st.session_state.chatbot = LingobabeChatbot()
+    
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
-    
-    # Separate the video and text content
-    video_html = """
-        <div style="margin-bottom: 1rem;">
-            <video width="320" height="240" autoplay loop muted playsinline style="border-radius: 10px;">
-                <source src="https://i.imgur.com/lNH72gk.mp4" type="video/mp4">
-            </video>
-        </div>
-    """
-    
-    text_content = """
-欢迎光临！(huān yíng guāng lín!) 
-请问你叫什么名字呢？(qǐng wèn nǐ jiào shén me míng zi ne?)
-(Welcome to our café! What's your name?) 🌸
-
-Try saying:
-我叫... (wǒ jiào...) - My name is...
-
----
-Word-by-Word Breakdown:
-欢迎 (huān yíng) - welcome
-光临 (guāng lín) - to visit/attend
-请问 (qǐng wèn) - may I ask
-你 (nǐ) - you
-叫 (jiào) - called
-什么 (shén me) - what
-名字 (míng zi) - name
-呢 (ne) - question particle
-
-Type your name using: 
-我叫 [your name] (wǒ jiào [your name])
-"""
-    
-    # Generate audio for Chinese text only
-    audio_html = text_to_speech("欢迎光临！请问你叫什么名字呢？")
-    message_id = len(st.session_state.chat_history)
-    
-    # Store the first message with all components
+    # Display initial scene
+    initial_scene = st.session_state.chatbot.get_current_scene()
+    formatted_scene = st.session_state.chatbot.format_scene(initial_scene)
     st.session_state.chat_history.append({
         "role": "assistant",
-        "content": text_content,
-        "id": message_id,
-        "video_html": video_html  # Store video HTML separately
+        "content": formatted_scene
     })
-    st.session_state.audio_elements = {message_id: audio_html}
 
 # Add these constants at the top of the file with other constants
 REACTION_VIDEOS = {
@@ -593,61 +558,29 @@ def handle_chat_input(prompt):
     
     # Handle audio requests
     if prompt.lower().startswith("play audio"):
-        audio_response = handle_audio_request(prompt.lower())
-        if audio_response:
-            with st.chat_message("assistant", avatar=TUTOR_AVATAR):
-                st.markdown(audio_response, unsafe_allow_html=True)
-            st.session_state.chat_history.append({
-                "role": "user", 
-                "content": prompt
-            })
-            return
+        try:
+            option_num = int(prompt.split()[-1])
+            current_scene = st.session_state.chatbot.get_current_scene()
+            if 1 <= option_num <= 3:
+                chinese_text = current_scene["options"][option_num-1]["chinese"]
+                audio_html = text_to_speech(chinese_text)
+                with st.chat_message("assistant", avatar=TUTOR_AVATAR):
+                    st.markdown(audio_html, unsafe_allow_html=True)
+                return
+        except (ValueError, IndexError):
+            pass
     
     # Handle normal responses
-    try:
-        choice = int(prompt)
-        if 1 <= choice <= 3:
-            scene_response = get_scene_content(st.session_state.chat_state["current_scene"], choice)
-            if scene_response:
-                points = scene_response["points"]
-                response_text = scene_response["response"]
-                meter_update = update_babe_meter(points)
-                
-                with st.chat_message("assistant", avatar=TUTOR_AVATAR):
-                    st.markdown(response_text)
-                    st.markdown(meter_update)
-                    
-                # Update scene if needed
-                if scene_response.get("next_scene"):
-                    st.session_state.chat_state["current_scene"] = scene_response["next_scene"]
-                    # Present next scene options
-                    next_scene = get_scene_content(st.session_state.chat_state["current_scene"])
-                    with st.chat_message("assistant", avatar=TUTOR_AVATAR):
-                        st.markdown(next_scene["scene_text"])
-                        st.session_state.chat_state["last_options"] = next_scene["options"]
-                        # Display options
-                        for i, opt in enumerate(next_scene["options"], 1):
-                            st.markdown(f"{i}️⃣ {opt['chinese']}\n    {opt['pinyin']}\n    {opt['english']}")
-                
-                # Add to chat history
-                st.session_state.chat_history.extend([
-                    {"role": "user", "content": prompt},
-                    {"role": "assistant", "content": response_text + meter_update}
-                ])
-        else:
-            with st.chat_message("assistant", avatar=TUTOR_AVATAR):
-                st.markdown("Sorry babe, I don't quite understand you.")
-                st.session_state.chat_history.extend([
-                    {"role": "user", "content": prompt},
-                    {"role": "assistant", "content": "Sorry babe, I don't quite understand you."}
-                ])
-    except ValueError:
-        with st.chat_message("assistant", avatar=TUTOR_AVATAR):
-            st.markdown("Sorry babe, I don't quite understand you.")
-            st.session_state.chat_history.extend([
-                {"role": "user", "content": prompt},
-                {"role": "assistant", "content": "Sorry babe, I don't quite understand you."}
-            ])
+    response = st.session_state.chatbot.get_response(prompt)
+    with st.chat_message("assistant", avatar=TUTOR_AVATAR):
+        st.markdown(response["text"])
+        st.markdown(f"\n❤️ Babe Happy Meter: {response['points']}/100")
+    
+    # Add to chat history
+    st.session_state.chat_history.extend([
+        {"role": "user", "content": prompt},
+        {"role": "assistant", "content": response["text"] + f"\n\n❤️ Babe Happy Meter: {response['points']}/100"}
+    ])
 
 # Update the chat input handling section
 if prompt := st.chat_input("Type your message here...", key="main_chat_input"):
@@ -673,28 +606,55 @@ observer.observe(
 
 def get_scene_content(scene_number, user_choice=None):
     """Get the appropriate scene content and response options"""
-    # This would parse thechat.md to get the correct dialogue
-    # For now, let's handle Scene 1 as an example
     if scene_number == 1:
         if not user_choice:  # Initial scene setup
             return {
-                "scene_text": """(Seated at a beautifully set table, she gracefully looks up as you arrive.)
-「刚刚好，我正欣赏着这里的氛围——看来你的品味不错。」
+                "scene_text": """_(Seated at a beautifully set table, she gracefully looks up as you arrive.)_
+
+**「刚刚好，我正欣赏着这里的氛围——看来你的品味不错。」**
+
 (Gānggāng hǎo, wǒ zhèng xīnshǎng zhe zhèlǐ de fēnwèi——kànlái nǐ de pǐnwèi búcuò.)
-"Perfect timing. I was just admiring the ambiance—seems like you have good taste."
-""",
+
+_"Perfect timing. I was just admiring the ambiance—seems like you have good taste."_
+
+🟢 **User MUST choose one response:**""",
                 "options": [
                     {
-                        "chinese": "「我特意订了座位，今晚当然要享受最好的。」",
+                        "chinese": "**「我特意订了座位，今晚当然要享受最好的。」**",
                         "pinyin": "(Wǒ tèyì dìngle zuòwèi, jīnwǎn dāngrán yào xiǎngshòu zuì hǎo de.)",
-                        "english": '"I took the liberty of making a reservation. Only the best for tonight."',
-                        "points": 12
+                        "english": '_"I took the liberty of making a reservation. Only the best for tonight."_',
+                        "points": 12,
+                        "note": "_(❤️ +12, Confident & Thoughtful, Uses 'Reservation')_"
                     },
-                    # Add other options similarly
+                    {
+                        "chinese": "**「希望这里的美食能配得上这氛围。」**",
+                        "pinyin": "(Xīwàng zhèlǐ de měishí néng pèi dé shàng zhè fēnwèi.)",
+                        "english": '_"I hope the food lives up to the atmosphere."_',
+                        "points": 9,
+                        "note": "_(❤️ +9, Casual but Engaging, Uses 'Atmosphere')_"
+                    },
+                    {
+                        "chinese": "**「说实话？我只是跟着网上的好评来的。」**",
+                        "pinyin": "(Shuō shíhuà? Wǒ zhǐshì gēnzhe wǎngshàng de hǎopíng lái de.)",
+                        "english": '_"Honestly? I just followed the best reviews online."_',
+                        "points": 6,
+                        "note": "_(❤️ +6, Playful but Less Effort, Uses 'Reviews')_"
+                    }
                 ]
             }
-        # Handle responses based on user choice
-        # Add logic for response handling
+        elif user_choice == 1:
+            return {
+                "response": """_(Smiles approvingly, adjusting her napkin.)_
+
+**「懂得提前计划的男人——我喜欢。这很有自信。」**
+
+(Dǒngdé tíqián jìhuà de nánrén——wǒ xǐhuan. Zhè hěn yǒu zìxìn.)
+
+_"A man who plans ahead—I like that. It shows confidence."_""",
+                "points": 12,
+                "next_scene": 2
+            }
+        # Add other choice responses similarly
     return None
 
 def update_babe_meter(points):
@@ -712,3 +672,96 @@ def handle_audio_request(text):
         except ValueError:
             pass
     return None
+
+class LingobabeChatbot:
+    def __init__(self):
+        self.points = 50  # Initial Babe Happy Meter score
+        self.current_scene = 1
+        self.scenes = self.load_scenes()
+
+    def load_scenes(self):
+        """Load all scenes from thechat.md"""
+        scenes = {}
+        current_scene = None
+        
+        # Read thechat.md content
+        with open("src/assets/thechat.md", "r", encoding="utf-8") as f:
+            content = f.read()
+            
+        # Parse scenes and their responses
+        # This is a simplified example for Scene 1
+        scenes[1] = {
+            "intro": {
+                "scene_text": """_(Seated at a beautifully set table, she gracefully looks up as you arrive.)_
+
+**「刚刚好，我正欣赏着这里的氛围——看来你的品味不错。」**
+
+(Gānggāng hǎo, wǒ zhèng xīnshǎng zhe zhèlǐ de fēnwèi——kànlái nǐ de pǐnwèi búcuò.)
+
+_"Perfect timing. I was just admiring the ambiance—seems like you have good taste."_""",
+                "options": [
+                    {
+                        "chinese": "「我特意订了座位，今晚当然要享受最好的。」",
+                        "pinyin": "(Wǒ tèyì dìngle zuòwèi, jīnwǎn dāngrán yào xiǎngshòu zuì hǎo de.)",
+                        "english": '"I took the liberty of making a reservation. Only the best for tonight."',
+                        "points": 12
+                    },
+                    {
+                        "chinese": "「希望这里的美食能配得上这氛围。」",
+                        "pinyin": "(Xīwàng zhèlǐ de měishí néng pèi dé shàng zhè fēnwèi.)",
+                        "english": '"I hope the food lives up to the atmosphere."',
+                        "points": 9
+                    },
+                    {
+                        "chinese": "「说实话？我只是跟着网上的好评来的。」",
+                        "pinyin": "(Shuō shíhuà? Wǒ zhǐshì gēnzhe wǎngshàng de hǎopíng lái de.)",
+                        "english": '"Honestly? I just followed the best reviews online."',
+                        "points": 6
+                    }
+                ]
+            },
+            "responses": {
+                1: {
+                    "text": """_(Smiles approvingly, adjusting her napkin.)_
+
+**「懂得提前计划的男人——我喜欢。这很有自信。」**
+
+(Dǒngdé tíqián jìhuà de nánrén——wǒ xǐhuan. Zhè hěn yǒu zìxìn.)
+
+_"A man who plans ahead—I like that. It shows confidence."_""",
+                    "points": 12
+                },
+                # Add other responses similarly
+            }
+        }
+        return scenes
+
+    def get_current_scene(self):
+        """Get the current scene content"""
+        return self.scenes[self.current_scene]["intro"]
+
+    def get_response(self, choice):
+        """Get response for user's choice"""
+        try:
+            choice = int(choice)
+            if 1 <= choice <= 3:
+                response = self.scenes[self.current_scene]["responses"].get(choice)
+                if response:
+                    self.points += response["points"]
+                    return {
+                        "text": response["text"],
+                        "points": self.points
+                    }
+        except ValueError:
+            pass
+        return {"text": "Sorry babe, I don't quite understand you.", "points": self.points}
+
+    def format_scene(self, scene):
+        """Format scene content for display"""
+        output = scene["scene_text"] + "\n\n🟢 **User MUST choose one response:**\n\n"
+        for i, opt in enumerate(scene["options"], 1):
+            output += f"{i}️⃣ {opt['chinese']}\n"
+            output += f"    {opt['pinyin']}\n"
+            output += f"    {opt['english']}\n"
+            output += f"    _(❤️ +{opt['points']})_\n\n"
+        return output
