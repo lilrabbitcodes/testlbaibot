@@ -304,21 +304,39 @@ class Scene:
     def __init__(self, scene_id, initial_text, options):
         self.scene_id = scene_id
         self.initial_text = initial_text
-        self.options = options  # List of {chinese, pinyin, english, points, note, lingobabe_reply}
+        self.options = options  # First level options
+        self.current_options = options  # Track current level of options
+        self.last_choice = None  # Track last choice to handle nested responses
     
     def handle_choice(self, choice):
         """Handle user choice and return appropriate response"""
-        if not (1 <= choice <= len(self.options)):
+        if not (1 <= choice <= len(self.current_options)):
             return {"text": "Sorry babe, I don't quite understand you. Try choosing one of the options."}
             
-        option = self.options[choice-1]
-        if "lingobabe_reply" in option:
-            return {
-                "text": option["lingobabe_reply"]["text"],
-                "transition": option["lingobabe_reply"].get("transition", ""),
-                "points": option["points"],
-                "next_options": option["lingobabe_reply"].get("next_options", [])
-            }
+        option = self.current_options[choice-1]
+        
+        # If this is a first-level choice
+        if self.last_choice is None:
+            self.last_choice = choice
+            if "lingobabe_reply" in option:
+                # Update current_options to next level if available
+                self.current_options = option["lingobabe_reply"].get("next_options", [])
+                return {
+                    "text": option["lingobabe_reply"]["text"],
+                    "points": option["points"],
+                    "next_options": self.current_options
+                }
+        # If this is a second-level choice (after first choice)
+        else:
+            if "lingobabe_reply" in option:
+                # Reset for next scene
+                self.last_choice = None
+                self.current_options = self.options
+                return {
+                    "text": option["lingobabe_reply"]["text"],
+                    "transition": option["lingobabe_reply"].get("transition", ""),
+                    "points": option["points"]
+                }
         
         return {"text": "Sorry babe, I don't quite understand you. Try choosing one of the options."}
 
@@ -342,7 +360,7 @@ class LingobabeChat:
 (Gānggāng hǎo, wǒ zhèng xīnshǎng zhe zhèlǐ de fēnwèi——kànlái nǐ de pǐnwèi búcuò.)
 
 _"Perfect timing. I was just admiring the ambiance—seems like you have good taste."_""",
-            options=[
+            options=[  # First level options
                 {
                     "chinese": "「我特意订了座位，今晚当然要享受最好的。」",
                     "pinyin": "(Wǒ tèyì dìngle zuòwèi, jīnwǎn dāngrán yào xiǎngshòu zuì hǎo de.)",
@@ -357,7 +375,7 @@ _"Perfect timing. I was just admiring the ambiance—seems like you have good ta
 (Dǒngdé tíqián jìhuà de nánrén——wǒ xǐhuan. Zhè hěn yǒu zìxìn.)
 
 _"A man who plans ahead—I like that. It shows confidence."_""",
-                        "next_options": [
+                        "next_options": [  # Second level options
                             {
                                 "chinese": "「美好的夜晚，从美好的陪伴开始。」",
                                 "pinyin": "(Měihǎo de yèwǎn, cóng měihǎo de péibàn kāishǐ.)",
@@ -372,6 +390,29 @@ _"A man who plans ahead—I like that. It shows confidence."_""",
 (Tīng qǐlái hěn mírén, dàn wǒ xiǎng kànkan nǐ néng fǒu zhēnde zuòdào.)
 
 _"Flattering, but let's see if you live up to your own words."_""",
+                                    "transition": """_The waiter approaches, placing elegantly designed menus before you. A soft glow from the candlelight reflects off the glassware, setting the tone for a refined evening._
+
+**「我们先来点酒吧。你通常喜欢红酒、白酒，还是想尝试点特别的？」**
+
+(Wǒmen xiān lái diǎn jiǔ ba. Nǐ tōngcháng xǐhuan hóngjiǔ, báijiǔ, háishì xiǎng chángshì diǎn tèbié de?)
+
+_"Let's start with a drink. Do you usually go for red, white, or something a little more exciting?"_"""
+                                }
+                            },
+                            {
+                                "chinese": "「细节很重要，尤其是这样的夜晚。」",
+                                "pinyin": "(Xìjié hěn zhòngyào, yóuqí shì zhèyàng de yèwǎn.)",
+                                "english": "Details matter, especially when the evening is important.",
+                                "points": 11,
+                                "note": "(❤️ +11, Thoughtful & Attentive, Uses 'Details')",
+                                "lingobabe_reply": {
+                                    "text": """_(Nods approvingly.)_
+
+**「对细节敏感的男人，令人印象深刻。」**
+
+(Duì xìjié mǐngǎn de nánrén, lìng rén yìnxiàng shēnkè.)
+
+_"A man with an eye for detail—impressive."_""",
                                     "transition": """_The waiter approaches, placing elegantly designed menus before you. A soft glow from the candlelight reflects off the glassware, setting the tone for a refined evening._
 
 **「我们先来点酒吧。你通常喜欢红酒、白酒，还是想尝试点特别的？」**
