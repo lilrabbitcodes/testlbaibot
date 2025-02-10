@@ -588,16 +588,20 @@ def handle_chat_input(prompt):
     
     # Handle normal responses
     try:
+        # Try to get choice number from prompt
         choice = None
+        current_scene = st.session_state.chatbot.get_current_scene()
+        
         if prompt.isdigit():
             choice = int(prompt)
-        else:
-            current_scene = st.session_state.chatbot.get_current_scene()
-            if current_scene:
-                for i, opt in enumerate(current_scene.options, 1):
-                    if opt["chinese"].replace("**", "").replace("「", "").replace("」", "") in prompt:
-                        choice = i
-                        break
+        elif current_scene:
+            # Check if prompt contains any of the Chinese options
+            for i, opt in enumerate(current_scene.options, 1):
+                clean_chinese = opt["chinese"].replace("**", "").replace("「", "").replace("」", "").strip()
+                clean_prompt = prompt.replace("「", "").replace("」", "").strip()
+                if clean_chinese in clean_prompt or clean_prompt in clean_chinese:
+                    choice = i
+                    break
         
         if choice and 1 <= choice <= 3:
             response = st.session_state.chatbot.handle_choice(choice)
