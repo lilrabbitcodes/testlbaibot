@@ -307,70 +307,6 @@ class Scene:
         self.options = options  # List of {chinese, pinyin, english}
         self.responses = responses  # Dict of {choice: {text, next_options}}
 
-    def handle_sub_choice(self, choice, next_options):
-        """Handle choices within a sub-scene"""
-        if not next_options or choice < 1 or choice > len(next_options):
-            return None
-            
-        selected_option = next_options[choice-1]
-        
-        # Get the response text from the option if it exists
-        response_text = selected_option.get("response", """_(Chuckles lightly.)_
-
-**「确实如此。到目前为止，你的表现不错。」**
-
-(Quèshí rúcǐ. Dào mùqián wéi zhǐ, nǐ de biǎoxiàn búcuò.)
-
-_"That's true. And so far, I'd say you're off to a good start."_""")
-        
-        # Universal narrative transition
-        transition_text = """_The waiter approaches, placing elegantly designed menus before you. A soft glow from the candlelight reflects off the glassware, setting the tone for a refined evening._"""
-        
-        # Scene 2 intro
-        scene2_text = """_(Flicks her eyes toward the wine list, then back at you.)_
-
-**「我们先来点酒吧。你通常喜欢红酒、白酒，还是想尝试点特别的？」**
-
-(Wǒmen xiān lái diǎn jiǔ ba. Nǐ tōngcháng xǐhuan hóngjiǔ, báijiǔ, háishì xiǎng chángshì diǎn tèbié de?)
-
-_"Let's start with a drink. Do you usually go for red, white, or something a little more exciting?"_"""
-        
-        return {
-            "responses": [
-                {
-                    "text": response_text,
-                    "points": selected_option.get("points", 0)
-                },
-                {
-                    "text": transition_text,
-                    "no_audio": True  # Skip audio for narrative transition
-                },
-                {
-                    "text": scene2_text,
-                    "next_options": [
-                        {
-                            "chinese": "「红酒，毫无疑问。一款经典的陈年佳酿总是最有魅力。」",
-                            "pinyin": "(Hóngjiǔ, háowú yíwèn. Yī kuǎn jīngdiǎn de chénnián jiāniàng zǒng shì zuì yǒu mèilì.)",
-                            "english": "Red, always. There's something bold and timeless about a great vintage.",
-                            "points": 12
-                        },
-                        {
-                            "chinese": "「白酒，尤其是清爽的那种，最适合放松。」",
-                            "pinyin": "(Báijiǔ, yóuqí shì qīngshuǎng de nà zhǔng, zuì shìhé fàngsōng.)",
-                            "english": "White, especially something crisp and refreshing.",
-                            "points": 10
-                        },
-                        {
-                            "chinese": "「我喜欢尝试新鲜的选择，看看侍酒师会推荐什么。」",
-                            "pinyin": "(Wǒ xǐhuan chángshì xīnxiān de xuǎnzé, kànkan shìjiǔshī huì tuījiàn shénme.)",
-                            "english": "I like to mix it up. Let's see what the sommelier recommends.",
-                            "points": 11
-                        }
-                    ]
-                }
-            ]
-        }
-
 class LingobabeChat:
     def __init__(self):
         self.points = 50
@@ -425,14 +361,7 @@ _"A man who plans ahead—I like that. It shows confidence."_""",
                             "chinese": "「美好的夜晚，从美好的陪伴开始。」",
                             "pinyin": "(Měihǎo de yèwǎn, cóng měihǎo de péibàn kāishǐ.)",
                             "english": "A great evening starts with great company.",
-                            "points": 12,
-                            "response": """_(Softly smirks, tilting her head.)_
-
-**「听起来很迷人，但我想看看你能否真的做到。」**
-
-(Tīng qǐlái hěn mírén, dàn wǒ xiǎng kànkan nǐ néng fǒu zhēnde zuòdào.)
-
-_"Flattering, but let's see if you live up to your own words."_"""
+                            "points": 12
                         },
                         {
                             "chinese": "「细节很重要，尤其是这样的夜晚。」",
@@ -476,76 +405,11 @@ _"I have a feeling it will. But a perfect dinner is more than just the food."_""
                             "points": 7
                         }
                     ]
-                },
-                3: {
-                    "text": """_(Raises an eyebrow, smirking.)_
-
-**「很务实的做法。那么，你是那种相信评论的人，还是喜欢自己去发现新地方？」**
-
-(Hěn wùshí de zuòfǎ. Nàme, nǐ shì nà zhǒng xiāngxìn pínglùn de rén, háishì xǐhuan zìjǐ qù fāxiàn xīn dìfāng?)
-
-_"Practical. So, do you always trust reviews, or do you like discovering places yourself?"_""",
-                    "next_options": [
-                        {
-                            "chinese": "「我相信直觉，但做点功课总是好的。」",
-                            "pinyin": "(Wǒ xiāngxìn zhíjué, dàn zuò diǎn gōngkè zǒng shì hǎo de.)",
-                            "english": "I trust my instincts. But a little research never hurts.",
-                            "points": 10
-                        },
-                        {
-                            "chinese": "「我喜欢发现隐藏的宝藏，最好的地方通常都不在大众视线里。」",
-                            "pinyin": "(Wǒ xǐhuan fāxiàn yǐncáng de bǎozàng, zuì hǎo de dìfāng tōngcháng dōu bú zài dàzhòng shìxiàn lǐ.)",
-                            "english": "I love finding hidden gems. The best places are usually off the radar.",
-                            "points": 11
-                        },
-                        {
-                            "chinese": "「说实话，我就是哪里食物好吃就去哪。」",
-                            "pinyin": "(Shuō shíhuà, wǒ jiù shì nǎlǐ shíwù hǎochī jiù qù nǎlǐ.)",
-                            "english": "To be honest, I just go where people tell me the food is good.",
-                            "points": 8
-                        }
-                    ]
                 }
             }
         )
         
-        # Add Scene 2: Wine & Drink Selection
-        scenes[2] = Scene(
-            scene_id=2,
-            initial_text="""_The waiter approaches, placing elegantly designed menus before you. A soft glow from the candlelight reflects off the glassware, setting the tone for a refined evening._
-
-_(Flicks her eyes toward the wine list, then back at you.)_
-
-**「我们先来点酒吧。你通常喜欢红酒、白酒，还是想尝试点特别的？」**
-
-(Wǒmen xiān lái diǎn jiǔ ba. Nǐ tōngcháng xǐhuan hóngjiǔ, báijiǔ, háishì xiǎng chángshì diǎn tèbié de?)
-
-_"Let's start with a drink. Do you usually go for red, white, or something a little more exciting?"_""",
-            options=[
-                {
-                    "chinese": "「红酒，毫无疑问。一款经典的陈年佳酿总是最有魅力。」",
-                    "pinyin": "(Hóngjiǔ, háowú yíwèn. Yī kuǎn jīngdiǎn de chénnián jiāniàng zǒng shì zuì yǒu mèilì.)",
-                    "english": "Red, always. There's something bold and timeless about a great vintage.",
-                    "points": 12
-                },
-                {
-                    "chinese": "「白酒，尤其是清爽的那种，最适合放松。」",
-                    "pinyin": "(Báijiǔ, yóuqí shì qīngshuǎng de nà zhǔng, zuì shìhé fàngsōng.)",
-                    "english": "White, especially something crisp and refreshing.",
-                    "points": 10
-                },
-                {
-                    "chinese": "「我喜欢尝试新鲜的选择，看看侍酒师会推荐什么。」",
-                    "pinyin": "(Wǒ xǐhuan chángshì xīnxiān de xuǎnzé, kànkan shìjiǔshī huì tuījiàn shénme.)",
-                    "english": "I like to mix it up. Let's see what the sommelier recommends.",
-                    "points": 11
-                }
-            ],
-            responses={
-                # Add Scene 2 responses here...
-            }
-        )
-        
+        # Add Scene 2, 3, 4, and 5...
         return scenes
 
     def get_current_scene(self):
@@ -557,36 +421,15 @@ _"Let's start with a drink. Do you usually go for red, white, or something a lit
         scene = self.get_current_scene()
         if not scene or choice not in [1, 2, 3]:
             return {"text": "Sorry babe, I don't quite understand you."}
-        
-        # Handle main scene response
+            
         response = scene.responses.get(choice)
         if response:
             self.points += scene.options[choice-1]["points"]
-            
-            # Always include next_options in the response
+            self.current_scene += 1
             return {
                 "text": response["text"],
                 "points": self.points,
-                "next_options": response.get("next_options", [
-                    {
-                        "chinese": "「美好的夜晚，从美好的陪伴开始。」",
-                        "pinyin": "(Měihǎo de yèwǎn, cóng měihǎo de péibàn kāishǐ.)",
-                        "english": "A great evening starts with great company.",
-                        "points": 12
-                    },
-                    {
-                        "chinese": "「细节很重要，尤其是这样的夜晚。」",
-                        "pinyin": "(Xìjié hěn zhòngyào, yóuqí shì zhèyàng de yèwǎn.)",
-                        "english": "Details matter, especially when the evening is important.",
-                        "points": 11
-                    },
-                    {
-                        "chinese": "「一点小小的努力，总是值得的。」",
-                        "pinyin": "(Yīdiǎn xiǎoxiǎo de nǔlì, zǒng shì zhídé de.)",
-                        "english": "Well, a little effort goes a long way.",
-                        "points": 10
-                    }
-                ])
+                "next_options": response.get("next_options")
             }
         
         return {"text": "Sorry babe, I don't quite understand you."}
@@ -739,26 +582,15 @@ def handle_chat_input(prompt):
         """, unsafe_allow_html=True)
         time.sleep(1)  # Simulate typing delay
     
-    # Get the latest options from the last bot message
-    latest_options = None
-    for message in reversed(st.session_state.chat_history):
-        if message["role"] == "assistant" and "Choose your response to your babe:" in message["content"]:
-            options_text = message["content"]
-            # Extract options from the message
-            options = []
-            for i, line in enumerate(options_text.split('\n'), 1):
-                if f"{i}️⃣" in line:
-                    chinese = line.split(' ')[1]  # Get the Chinese text
-                    options.append(chinese)
-            latest_options = options
-            break
-    
     # Handle audio playback requests
     if prompt.lower().startswith("play audio"):
         try:
             option_num = int(prompt.split()[-1])
-            if latest_options and 1 <= option_num <= len(latest_options):
-                chinese = latest_options[option_num-1]
+            current_scene = st.session_state.chatbot.get_current_scene()
+            
+            if current_scene and 1 <= option_num <= 3:
+                option = current_scene.options[option_num-1]
+                chinese = option["chinese"]
                 for char in ["「", "」", "**"]:
                     chinese = chinese.replace(char, "")
                 chinese = chinese.strip()
@@ -769,7 +601,7 @@ def handle_chat_input(prompt):
                     typing_placeholder.empty()
                     st.session_state.chat_history.append({
                         "role": "assistant",
-                        "content": f"This is how you pronounce, babe:\n\n{chinese}",
+                        "content": f"This is how you pronounce, babe:\n\n{chinese}\n{option['pinyin']}\n{option['english']}",
                         "audio_html": audio_html
                     })
                     st.rerun()
@@ -787,41 +619,39 @@ def handle_chat_input(prompt):
     # Handle normal responses
     try:
         choice = None
+        current_scene = st.session_state.chatbot.get_current_scene()
         
         if prompt.isdigit():
             choice = int(prompt)
-            if latest_options and 1 <= choice <= len(latest_options):
-                # Match the choice with the latest options
-                clean_prompt = latest_options[choice-1]
-            else:
-                choice = None
-        elif latest_options:
-            # Try to match the text input with latest options
-            clean_prompt = prompt.replace("「", "").replace("」", "").strip()
-            for i, opt in enumerate(latest_options, 1):
-                clean_opt = opt.replace("「", "").replace("」", "").strip()
-                if clean_opt in clean_prompt or clean_prompt in clean_opt:
+        elif current_scene:
+            for i, opt in enumerate(current_scene.options, 1):
+                clean_chinese = opt["chinese"].replace("**", "").replace("「", "").replace("」", "").strip()
+                clean_prompt = prompt.replace("「", "").replace("」", "").strip()
+                if clean_chinese in clean_prompt or clean_prompt in clean_chinese:
                     choice = i
                     break
         
         if choice and 1 <= choice <= 3:
             response = st.session_state.chatbot.handle_choice(choice)
+            points = current_scene.options[choice-1]["points"]
             
-            # Add bot's response with points
-            chinese_text = response["text"].split("**")[1].split("**")[0]
+            # Extract Chinese text from response for audio
+            chinese_text = response["text"].split("**「")[1].split("」**")[0]
             audio_html = text_to_speech(chinese_text)
             
+            # Remove typing indicator and add bot's response with points
             typing_placeholder.empty()
             st.session_state.chat_history.append({
                 "role": "assistant",
-                "content": f"{response['text']}\n\n❤️ Babe Happiness Meter: {response['points']}/100",
+                "content": f"{response['text']}\n\n❤️ Babe Happiness Meter: {response['points']}/100 (+{points} points)",
                 "audio_html": audio_html
             })
             
-            # Always show next options
-            if "next_options" in response:
+            # If there's a next scene, add it to chat history
+            if "next_options" in response and response["next_options"]:
+                next_scene = response["next_options"]
                 options_text = "\n\n🟢 Choose your response to your babe:\n\n"
-                for i, opt in enumerate(response["next_options"], 1):
+                for i, opt in enumerate(next_scene, 1):
                     chinese = opt['chinese'].replace('**', '')
                     options_text += f"{i}️⃣ {chinese} {opt['pinyin']} {opt['english']}\n\n"
                 options_text += "-\n\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
