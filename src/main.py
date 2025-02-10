@@ -613,32 +613,24 @@ _"That sounds like a dream. Maybe I need a guide for my next trip."_""",
     def handle_choice(self, choice):
         """Process user choice and return appropriate response"""
         scene = self.get_current_scene()
-        if not scene or choice not in [1, 2, 3]:
-            return {"text": "Sorry babe, I don't quite understand you."}
+        if not scene:
+            return {"text": "Sorry babe, I don't quite understand you. Try choosing one of the options."}
         
-        # Handle main scene response
-        response = scene.responses.get(choice)
-        if response:
-            self.points += scene.options[choice-1]["points"]
+        # Get the selected option
+        if not (1 <= choice <= len(scene.options)):
+            return {"text": "Sorry babe, I don't quite understand you. Try choosing one of the options."}
             
-            # If we're handling a sub-choice (next_options)
-            if hasattr(st.session_state, 'last_response') and 'next_options' in st.session_state.last_response:
-                option = response.get("next_options", [])[choice-1]
-                if option and "lingobabe_reply" in option:
-                    # Return both the immediate reply and transition text
-                    return {
-                        "text": option["lingobabe_reply"]["text"],
-                        "transition": option["lingobabe_reply"]["transition"],
-                        "points": option["points"]
-                    }
-            
+        option = scene.options[choice-1]
+        if "lingobabe_reply" in option:
+            self.points += option["points"]
             return {
-                "text": response["text"],
+                "text": option["lingobabe_reply"]["text"],
+                "transition": option["lingobabe_reply"].get("transition", ""),
                 "points": self.points,
-                "next_options": response.get("next_options")
+                "next_options": option["lingobabe_reply"].get("next_options", [])
             }
         
-        return {"text": "Sorry babe, I don't quite understand you."}
+        return {"text": "Sorry babe, I don't quite understand you. Try choosing one of the options."}
 
 # Initialize session state variables
 if "chat_history" not in st.session_state:
