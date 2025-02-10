@@ -471,19 +471,15 @@ _"Perfect timing. I was just admiring the ambiance—seems like you have good ta
         first_chinese = "刚刚好，我正欣赏着这里的氛围——看来你的品味不错。"
         first_audio = text_to_speech(first_chinese)
         
-        # Add options (without showing points)
-        options_message = "\n\n🟢 **Choose your response to your babe:**\n\n"
-        options_message += """1️⃣ **「我特意订了座位，今晚当然要享受最好的。」**
-(Wǒ tèyì dìngle zuòwèi, jīnwǎn dāngrán yào xiǎngshòu zuì hǎo de.)
-_"I took the liberty of making a reservation. Only the best for tonight."_
+        # Add options with new formatting
+        options_message = "\n\n🟢 Choose your response to your babe:\n\n"
+        options_message += """1️⃣ 「我特意订了座位，今晚当然要享受最好的。」 (Wǒ tèyì dìngle zuòwèi, jīnwǎn dāngrán yào xiǎngshòu zuì hǎo de.) "I took the liberty of making a reservation. Only the best for tonight."
 
-2️⃣ **「希望这里的美食能配得上这氛围。」**
-(Xīwàng zhèlǐ de měishí néng pèi dé shàng zhè fēnwèi.)
-_"I hope the food lives up to the atmosphere."_
+2️⃣ 「希望这里的美食能配得上这氛围。」 (Xīwàng zhèlǐ de měishí néng pèi dé shàng zhè fēnwèi.) "I hope the food lives up to the atmosphere."
 
-3️⃣ **「说实话？我只是跟着网上的好评来的。」**
-(Shuō shíhuà? Wǒ zhǐshì gēnzhe wǎngshàng de hǎopíng lái de.)
-_"Honestly? I just followed the best reviews online."_"""
+3️⃣ 「说实话？我只是跟着网上的好评来的。」 (Shuō shíhuà? Wǒ zhǐshì gēnzhe wǎngshàng de hǎopíng lái de.) "Honestly? I just followed the best reviews online."
+
+-"""
         
         options_message += "\n\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
         
@@ -590,7 +586,7 @@ def handle_chat_input(prompt):
             option_num = int(prompt.split()[-1])
             current_scene = st.session_state.chatbot.get_scene()
             
-            if current_scene and 1 <= option_num <= 3:
+            if current_scene and 1 <= option_num <= 3 and option_num <= len(current_scene["options"]):
                 option = current_scene["options"][option_num-1]
                 chinese = option["chinese"].replace("**", "").replace("「", "").replace("」", "")
                 audio_html = text_to_speech(chinese)
@@ -600,9 +596,10 @@ def handle_chat_input(prompt):
                         st.markdown("This is how you pronounce, babe:")
                         st.markdown(chinese)
                         st.markdown(option["pinyin"])
-                        st.markdown(option["english"])
+                        st.markdown(option["english"].replace("_", ""))
                         st.markdown(audio_html, unsafe_allow_html=True)
                     
+                    # Add to chat history
                     st.session_state.chat_history.append({
                         "role": "user",
                         "content": prompt
@@ -616,7 +613,7 @@ def handle_chat_input(prompt):
             else:
                 with st.chat_message("assistant", avatar=TUTOR_AVATAR):
                     st.markdown("Sorry babe, please choose a valid option number (1-3).")
-        except (ValueError, IndexError) as e:
+        except Exception as e:
             print(f"Error handling audio request: {e}")
             with st.chat_message("assistant", avatar=TUTOR_AVATAR):
                 st.markdown("Sorry babe, please choose a valid option number (1-3).")
@@ -634,13 +631,12 @@ def handle_chat_input(prompt):
                         next_scene = response["next_scene"]
                         if next_scene:
                             st.markdown(next_scene["text"])
-                            st.markdown("\n\n🟢 **Choose your response:**\n\n")
+                            st.markdown("\n\n🟢 Choose your response to your babe:\n\n")
                             for i, opt in enumerate(next_scene["options"], 1):
                                 st.markdown(
-                                    f"{i}️⃣ {opt['chinese']}\n"
-                                    f"{opt['pinyin']}\n"
-                                    f"{opt['english']}\n\n"
+                                    f"{i}️⃣ {opt['chinese'].replace('**', '')} {opt['pinyin']} {opt['english'].replace('_', '')}\n"
                                 )
+                            st.markdown("\n-\n")
                             st.markdown("\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!")
                 
                 st.session_state.chat_history.append({
