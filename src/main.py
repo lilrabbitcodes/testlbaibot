@@ -597,7 +597,11 @@ if prompt := st.chat_input("Type your message here...", key="main_chat_input"):
         if audio_response:
             with st.chat_message("assistant", avatar=TUTOR_AVATAR):
                 st.markdown(audio_response, unsafe_allow_html=True)
-            continue
+            st.session_state.chat_history.append({
+                "role": "user", 
+                "content": prompt
+            })
+            return  # Use return instead of continue
     
     # Handle normal responses
     try:
@@ -624,12 +628,26 @@ if prompt := st.chat_input("Type your message here...", key="main_chat_input"):
                         # Display options
                         for i, opt in enumerate(next_scene["options"], 1):
                             st.markdown(f"{i}️⃣ {opt['chinese']}\n    {opt['pinyin']}\n    {opt['english']}")
+                
+                # Add to chat history
+                st.session_state.chat_history.extend([
+                    {"role": "user", "content": prompt},
+                    {"role": "assistant", "content": response_text + meter_update}
+                ])
         else:
             with st.chat_message("assistant", avatar=TUTOR_AVATAR):
                 st.markdown("Sorry babe, I don't quite understand you.")
+                st.session_state.chat_history.extend([
+                    {"role": "user", "content": prompt},
+                    {"role": "assistant", "content": "Sorry babe, I don't quite understand you."}
+                ])
     except ValueError:
         with st.chat_message("assistant", avatar=TUTOR_AVATAR):
             st.markdown("Sorry babe, I don't quite understand you.")
+            st.session_state.chat_history.extend([
+                {"role": "user", "content": prompt},
+                {"role": "assistant", "content": "Sorry babe, I don't quite understand you."}
+            ])
 
 # Add this JavaScript to automatically scroll to the latest message
 st.markdown("""
