@@ -543,12 +543,16 @@ def handle_chat_input(prompt):
             current_scene = st.session_state.chatbot.get_current_scene()
             if 1 <= option_num <= 3:
                 option = current_scene["options"][option_num-1]
-                chinese_text = option["chinese"]
-                # Remove markdown formatting from Chinese text
-                chinese_text = chinese_text.replace("**", "").replace("「", "").replace("」", "")
-                audio_html = text_to_speech(chinese_text)
+                # Format the response with Chinese, Pinyin, and English
+                response_text = (
+                    "This is how you pronounce, babe:\n"
+                    f"{option['chinese'].replace('**', '').replace('「', '').replace('」', '')}\n"
+                    f"{option['pinyin']}\n"
+                    f"{option['english'].replace('_', '')}"
+                )
+                audio_html = text_to_speech(option['chinese'].replace('**', '').replace('「', '').replace('」', ''))
                 with st.chat_message("assistant", avatar=TUTOR_AVATAR):
-                    st.markdown(f"This is how you pronounce: {chinese_text}, babe")
+                    st.markdown(response_text)
                     st.markdown(audio_html, unsafe_allow_html=True)
         except (ValueError, IndexError):
             with st.chat_message("assistant", avatar=TUTOR_AVATAR):
