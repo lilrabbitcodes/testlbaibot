@@ -660,8 +660,14 @@ def handle_chat_input(prompt):
             option_num = int(prompt.split()[-1])
             current_scene = st.session_state.chatbot.get_current_scene()
             
-            if current_scene and 1 <= option_num <= 3:
-                option = current_scene.options[option_num-1]
+            # Check if we're in a sub-scene (next_options)
+            if "last_response" in st.session_state and "next_options" in st.session_state.last_response:
+                options = st.session_state.last_response["next_options"]
+            else:
+                options = current_scene.options if current_scene else None
+            
+            if options and 1 <= option_num <= 3:
+                option = options[option_num-1]
                 chinese = option["chinese"]
                 for char in ["「", "」", "**"]:
                     chinese = chinese.replace(char, "")
@@ -706,6 +712,9 @@ def handle_chat_input(prompt):
         if choice and 1 <= choice <= 3:
             response = st.session_state.chatbot.handle_choice(choice)
             points = current_scene.options[choice-1]["points"]
+            
+            # Store the last response for audio playback
+            st.session_state.last_response = response
             
             # Extract Chinese text from response for audio
             chinese_text = response["text"].split("**「")[1].split("」**")[0]
