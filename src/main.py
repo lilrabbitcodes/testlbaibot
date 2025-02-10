@@ -361,19 +361,67 @@ _"A man who plans ahead—I like that. It shows confidence."_""",
                             "chinese": "「美好的夜晚，从美好的陪伴开始。」",
                             "pinyin": "(Měihǎo de yèwǎn, cóng měihǎo de péibàn kāishǐ.)",
                             "english": "A great evening starts with great company.",
-                            "points": 12
+                            "points": 12,
+                            "response": {
+                                "text": """_(Softly smirks, tilting her head.)_
+
+**「听起来很迷人，但我想看看你能否真的做到。」**
+
+(Tīng qǐlái hěn mírén, dàn wǒ xiǎng kànkan nǐ néng fǒu zhēnde zuòdào.)
+
+_"Flattering, but let's see if you live up to your own words."_""",
+                                "transition": """_The waiter approaches, placing elegantly designed menus before you. A soft glow from the candlelight reflects off the glassware, setting the tone for a refined evening._
+
+**「我们先来点酒吧。你通常喜欢红酒、白酒，还是想尝试点特别的？」**
+
+(Wǒmen xiān lái diǎn jiǔ ba. Nǐ tōngcháng xǐhuan hóngjiǔ, báijiǔ, háishì xiǎng chángshì diǎn tèbié de?)
+
+_"Let's start with a drink. Do you usually go for red, white, or something a little more exciting?"_"""
+                            }
                         },
                         {
                             "chinese": "「细节很重要，尤其是这样的夜晚。」",
                             "pinyin": "(Xìjié hěn zhòngyào, yóuqí shì zhèyàng de yèwǎn.)",
                             "english": "Details matter, especially when the evening is important.",
-                            "points": 11
+                            "points": 11,
+                            "response": {
+                                "text": """_(Nods approvingly.)_
+
+**「对细节敏感的男人，令人印象深刻。」**
+
+(Duì xìjié mǐngǎn de nánrén, lìng rén yìnxiàng shēnkè.)
+
+_"A man with an eye for detail—impressive."_""",
+                                "transition": """_The waiter approaches, placing elegantly designed menus before you. A soft glow from the candlelight reflects off the glassware, setting the tone for a refined evening._
+
+**「我们先来点酒吧。你通常喜欢红酒、白酒，还是想尝试点特别的？」**
+
+(Wǒmen xiān lái diǎn jiǔ ba. Nǐ tōngcháng xǐhuan hóngjiǔ, báijiǔ, háishì xiǎng chángshì diǎn tèbié de?)
+
+_"Let's start with a drink. Do you usually go for red, white, or something a little more exciting?"_"""
+                            }
                         },
                         {
                             "chinese": "「一点小小的努力，总是值得的。」",
                             "pinyin": "(Yīdiǎn xiǎoxiǎo de nǔlì, zǒng shì zhídé de.)",
                             "english": "Well, a little effort goes a long way.",
-                            "points": 10
+                            "points": 10,
+                            "response": {
+                                "text": """_(Chuckles lightly.)_
+
+**「确实如此。到目前为止，你的表现不错。」**
+
+(Quèshí rúcǐ. Dào mùqián wéi zhǐ, nǐ de biǎoxiàn búcuò.)
+
+_"That's true. And so far, I'd say you're off to a good start."_""",
+                                "transition": """_The waiter approaches, placing elegantly designed menus before you. A soft glow from the candlelight reflects off the glassware, setting the tone for a refined evening._
+
+**「我们先来点酒吧。你通常喜欢红酒、白酒，还是想尝试点特别的？」**
+
+(Wǒmen xiān lái diǎn jiǔ ba. Nǐ tōngcháng xǐhuan hóngjiǔ, báijiǔ, háishì xiǎng chángshì diǎn tèbié de?)
+
+_"Let's start with a drink. Do you usually go for red, white, or something a little more exciting?"_"""
+                            }
                         }
                     ]
                 },
@@ -509,7 +557,7 @@ _"Interesting choice. You must be the adventurous type?"_""",
                     "next_options": [
                         {
                             "chinese": "「我曾经独自旅行了好几个月——这是我做过最棒的决定。」",
-                            "pinyin": "(Wǒ céngjīng dúzì lǚxíng le hǎo jǐ gè yuè——zhè shì wǒ zuò guò zuì bàng de juédìng.)",
+                            "pinyin": "(Wǒ céngjīng dúzì lǚxíng le hǎojǐ gè yuè——zhè shì wǒ zuò guò zuì bàng de juédìng.)",
                             "english": "I once traveled solo for months—best decision I ever made.",
                             "points": 12
                         },
@@ -653,7 +701,116 @@ _"Adventurous spirit, I like that. What's your most memorable dining experience?
             }
         )
         
-        # Add Scene 4, 5...
+        # Scene 4: Deeper Connection & Flirty Banter
+        scenes[4] = Scene(
+            scene_id=4,
+            initial_text="""_(Resting her chin on her hand, she studies you with amused curiosity.)_
+
+**「好了，晚餐点完了。现在告诉我——有什么是我光看你，猜不到的？」**
+
+(Gǎo le, wǎncān diǎn wán le. Xiànzài gàosù wǒ—yǒu shé me shì wǒ guāng kàn nǐ, cāi bù dào de?)
+
+_"Alright, dinner's taken care of. Now tell me—what's something about you I wouldn't guess just by looking at you?"_""",
+            options=[
+                {
+                    "chinese": "「我会说三种语言，一直以来我都喜欢挑战自己掌握新的语言。」",
+                    "pinyin": "(Wǒ huì shuō sān zhǒng yǔyán, yīzhí yǐlái wǒ dōu xǐhuan tiǎozhàn zìjǐ zhǎngwò xīn de yǔyán.)",
+                    "english": "I speak three languages. Always loved the challenge of mastering new ones.",
+                    "points": 12
+                },
+                {
+                    "chinese": "「我曾经一个人旅行了好几个月——这是我做过最棒的决定。」",
+                    "pinyin": "(Wǒ céngjīng yīgè rén lǚxíng le hǎojǐ gè yuè—zhè shì wǒ zuò guò zuì bàng de juédìng.)",
+                    "english": "I once traveled solo for months—best decision I ever made.",
+                    "points": 11
+                },
+                {
+                    "chinese": "「我最擅长让人发笑。如果你想听，我可以证明给你看。」",
+                    "pinyin": "(Wǒ zuì shàncháng ràng rén fāxiào. Rúguǒ nǐ xiǎng tīng, wǒ kěyǐ zhèngmíng gěi nǐ kàn.)",
+                    "english": "I have a talent for making people laugh. I'll prove it if you want.",
+                    "points": 10
+                }
+            ],
+            responses={
+                1: {
+                    "text": """_(Raises an eyebrow, intrigued.)_
+
+**「很厉害啊！那我是不是可以期待今晚听到几句甜言蜜语呢？」**
+
+(Hěn lìhài a! Nà wǒ shì bù shì kěyǐ qídài jīnwǎn tīng dào jǐ jù tiányán mìyǔ ne?)
+
+_"Impressive. So, should I be expecting some smooth talk in another language tonight?"_""",
+                    "next_options": [
+                        {
+                            "chinese": "「那你要答应我，别太快迷上我哦。」",
+                            "pinyin": "(Nà nǐ yào dāyìng wǒ, bié tài kuài mí shàng wǒ ó.)",
+                            "english": "Only if you promise not to fall for me too quickly.",
+                            "points": 12
+                        },
+                        {
+                            "chinese": "「比起说甜言蜜语，我更喜欢用行动证明。」",
+                            "pinyin": "(Bǐqǐ shuō tiányán mìyǔ, wǒ gèng xǐhuan yòng xíngdòng zhèngmíng.)",
+                            "english": "I'd rather impress you with my actions than just words.",
+                            "points": 11
+                        },
+                        {
+                            "chinese": "「这个嘛，等下次约会再说吧，留点神秘感。」",
+                            "pinyin": "(Zhège ma, děng xià cì yuēhuì zài shuō ba, liú diǎn shénmì gǎn.)",
+                            "english": "I'll save that for our next date. A little mystery is always good, right?",
+                            "points": 10
+                        }
+                    ]
+                },
+                2: {
+                    "text": """_(Eyes light up with curiosity.)_
+
+**「一个人旅行？这听起来很酷！最让你难忘的经历是什么？」**
+
+(Yī gè rén lǚxíng? Zhè tīng qǐlái hěn kù! Zuì ràng nǐ nánwàng de jīnglì shì shénme?)
+
+_"A solo traveler? That's impressive. What was the most unforgettable part?"_""",
+                    "next_options": [
+                        {
+                            "chinese": "「在陌生的城市醒来，没有计划，随心所欲地探索。」",
+                            "pinyin": "(Zài mòshēng de chéngshì xǐnglái, méiyǒu jìhuà, suíxīnsuǒyù de tànsuǒ.)",
+                            "english": "Waking up in a new city with no plans—just seeing where the day takes me.",
+                            "points": 12
+                        },
+                        {
+                            "chinese": "「一路上遇到的人。陌生人有时能教会你意想不到的事情。」",
+                            "pinyin": "(Yīlù shàng yù dào de rén. Mòshēng rén yǒushí néng jiāohuì nǐ yìxiǎng bù dào de shìqíng.)",
+                            "english": "The people I met along the way. Strangers can teach you the most unexpected things.",
+                            "points": 11
+                        },
+                        {
+                            "chinese": "「完全迷路，结果却意外找到最棒的地方。」",
+                            "pinyin": "(Wánquán mílù, jiéguǒ què yìwài zhǎodào zuì bàng de dìfāng.)",
+                            "english": "Getting completely lost and ending up in the best place by accident.",
+                            "points": 10
+                        }
+                    ]
+                },
+                3: {
+                    "text": """_(Smirks, tilting her head slightly.)_
+
+**「哦？是吗？那来吧，让我看看你的幽默感有多强。」**
+
+(Ò? Shì ma? Nà lái ba, ràng wǒ kànkan nǐ de yōumò gǎn yǒu duō qiáng.)
+
+_"A comedian, huh? Alright, impress me—what's your best line?"_""",
+                    "next_options": [
+                        {
+                            "chinese": "「我可以讲个笑话，但我更喜欢自然地让你笑出来。」",
+                            "pinyin": "(Wǒ kěyǐ jiǎng gè xiàohuà, dàn wǒ gèng xǐhuan zìrán de ràng nǐ xiào chūlái.)",
+                            "english": "I could tell you a joke, but I'd rather make you laugh the natural way.",
+                            "points": 12
+                        }
+                    ]
+                }
+            }
+        )
+        
+        # Add Scene 5...
         return scenes
 
     def get_current_scene(self):
@@ -665,11 +822,23 @@ _"Adventurous spirit, I like that. What's your most memorable dining experience?
         scene = self.get_current_scene()
         if not scene or choice not in [1, 2, 3]:
             return {"text": "Sorry babe, I don't quite understand you."}
-            
+        
+        # Handle main scene response
         response = scene.responses.get(choice)
         if response:
             self.points += scene.options[choice-1]["points"]
-            self.current_scene += 1
+            
+            # If we're handling a sub-choice (next_options)
+            if hasattr(st.session_state, 'last_response') and 'next_options' in st.session_state.last_response:
+                sub_response = scene.handle_sub_choice(choice, st.session_state.last_response['next_options'])
+                if sub_response:
+                    return {
+                        "responses": [
+                            {"text": sub_response["response"]["text"], "points": scene.options[choice-1]["points"]},
+                            {"text": sub_response["response"]["transition"], "no_audio": True}
+                        ]
+                    }
+            
             return {
                 "text": response["text"],
                 "points": self.points,
@@ -880,7 +1049,7 @@ def handle_chat_input(prompt):
             points = current_scene.options[choice-1]["points"]
             
             # Extract Chinese text from response for audio
-            chinese_text = response["text"].split("**「")[1].split("」**")[0]
+            chinese_text = response["text"].split("**")[1].split("」**")[0]
             audio_html = text_to_speech(chinese_text)
             
             # Remove typing indicator and add bot's response with points
