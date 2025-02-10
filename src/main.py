@@ -606,20 +606,23 @@ def handle_chat_input(prompt):
                 audio_html = text_to_speech(chinese)
                 
                 with st.chat_message("assistant", avatar=TUTOR_AVATAR):
-                    st.markdown(f"Here's how to pronounce option {option_num}:")
+                    st.markdown("This is how you pronounce, babe:")
                     st.markdown(f"{chinese}")
                     st.markdown(f"{option['pinyin']}")
                     st.markdown(f"{option['english']}")
                     st.markdown(audio_html, unsafe_allow_html=True)
                 
+                # Add to chat history
                 st.session_state.chat_history.append({
                     "role": "assistant",
-                    "content": f"Here's how to pronounce option {option_num}:\n{chinese}\n{option['pinyin']}\n{option['english']}",
+                    "content": f"This is how you pronounce, babe:\n{chinese}\n{option['pinyin']}\n{option['english']}",
                     "audio_html": audio_html
                 })
                 return
         except (ValueError, IndexError) as e:
             print(f"Error handling audio request: {e}")
+            with st.chat_message("assistant", avatar=TUTOR_AVATAR):
+                st.markdown("Sorry babe, I don't quite understand you.")
     
     # Handle normal responses
     try:
