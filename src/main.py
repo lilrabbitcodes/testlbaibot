@@ -307,6 +307,33 @@ class Scene:
         self.options = options  # List of {chinese, pinyin, english}
         self.responses = responses  # Dict of {choice: {text, next_options}}
 
+    def handle_sub_choice(self, choice, next_options):
+        """Handle choices within a sub-scene"""
+        if not next_options or choice < 1 or choice > len(next_options):
+            return None
+            
+        selected_option = next_options[choice-1]
+        
+        # Get the response text from the option if it exists
+        response_text = selected_option.get("response", "")
+        
+        # If no specific response, use the universal transition text
+        if not response_text:
+            response_text = """_The waiter approaches, placing elegantly designed menus before you. A soft glow from the candlelight reflects off the glassware, setting the tone for a refined evening._
+
+_(Flicks her eyes toward the wine list, then back at you.)_
+
+**「我们先来点酒吧。你通常喜欢红酒、白酒，还是想尝试点特别的？」**
+
+(Wǒmen xiān lái diǎn jiǔ ba. Nǐ tōngcháng xǐhuan hóngjiǔ, báijiǔ, háishì xiǎng chángshì diǎn tèbié de?)
+
+_"Let's start with a drink. Do you usually go for red, white, or something a little more exciting?"_"""
+            
+        return {
+            "text": response_text,
+            "points": selected_option.get("points", 0)
+        }
+
 class LingobabeChat:
     def __init__(self):
         self.points = 50
@@ -493,11 +520,22 @@ _"Let's start with a drink. Do you usually go for red, white, or something a lit
         scene = self.get_current_scene()
         if not scene or choice not in [1, 2, 3]:
             return {"text": "Sorry babe, I don't quite understand you."}
+        
+        # Check if we're handling a sub-scene response
+        if hasattr(st.session_state, 'last_response') and 'next_options' in st.session_state.last_response:
+            sub_response = scene.handle_sub_choice(choice, st.session_state.last_response['next_options'])
+            if sub_response:
+                self.points += sub_response["points"]
+                self.current_scene = 2  # Move to next scene after sub-scene
+                return {
+                    "text": sub_response["text"],
+                    "points": self.points
+                }
             
+        # Handle main scene response
         response = scene.responses.get(choice)
         if response:
             self.points += scene.options[choice-1]["points"]
-            self.current_scene += 1
             return {
                 "text": response["text"],
                 "points": self.points,
