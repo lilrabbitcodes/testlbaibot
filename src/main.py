@@ -416,33 +416,37 @@ if "chatbot" not in st.session_state:
     st.session_state.chatbot = LingobabeChat()
     current_scene = st.session_state.chatbot.get_current_scene()
     
-    # Extract Chinese text from the first message
-    first_chinese = next(
-        (line.strip() for line in current_scene["text"].split('\n') 
-         if '「' in line and '」' in line), 
-        ''
-    ).replace('「', '').replace('」', '')
-    
-    # Generate audio for first message
-    first_audio = text_to_speech(first_chinese) if first_chinese else ""
-    
-    # Format initial message
-    initial_message = (
-        current_scene["text"] + 
-        "\n\n🟢 **Choose your response to your babe:**\n\n" + 
-        "\n\n".join(
-            f"{i}️⃣ {opt['chinese']}\n{opt['pinyin']}\n{opt['english']}"
-            for i, opt in enumerate(current_scene["options"], 1)
-        ) + 
-        "\n\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
-    )
-    
-    # Add to chat history with audio
-    st.session_state.chat_history = [{
-        "role": "assistant",
-        "content": initial_message,
-        "audio_html": first_audio
-    }]
+    if current_scene:
+        # Format initial message
+        initial_message = (
+            f"""_(Seated at a beautifully set table, she gracefully looks up as you arrive.)_
+
+**「刚刚好，我正欣赏着这里的氛围——看来你的品味不错。」**
+
+(Gānggāng hǎo, wǒ zhèng xīnshǎng zhe zhèlǐ de fēnwèi——kànlái nǐ de pǐnwèi búcuò.)
+
+_"Perfect timing. I was just admiring the ambiance—seems like you have good taste."_"""
+        )
+        
+        # Generate audio for first message
+        first_chinese = "刚刚好，我正欣赏着这里的氛围——看来你的品味不错。"
+        first_audio = text_to_speech(first_chinese)
+        
+        # Add options
+        options_message = "\n\n🟢 **Choose your response to your babe:**\n\n"
+        for i, opt in enumerate(current_scene["options"], 1):
+            options_message += f"{i}️⃣ {opt['chinese']}\n{opt['pinyin']}\n{opt['english']}\n\n"
+        
+        options_message += "\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
+        
+        # Add to chat history with audio
+        st.session_state.chat_history = [{
+            "role": "assistant",
+            "content": initial_message + options_message,
+            "audio_html": first_audio
+        }]
+    else:
+        st.error("Failed to load initial scene")
 
 # Display chat history
 for message in st.session_state.chat_history:
