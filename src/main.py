@@ -1021,13 +1021,16 @@ def handle_chat_input(prompt):
                 chinese_text = response["text"].split("**")[1].split("」**")[0]
                 audio_html = text_to_speech(chinese_text)
                 
+                # Format the response without the (Scene transitions smoothly.) text
+                response_text = response["text"].replace("(Scene transitions smoothly.)", "").strip()
+                
                 st.session_state.chat_history.append({
                     "role": "assistant",
-                    "content": response["text"],
+                    "content": response_text,
                     "audio_html": audio_html
                 })
             
-            # Add scene transition if present
+            # Add scene transition as a separate message
             if "transition" in response:
                 st.session_state.chat_history.append({
                     "role": "assistant",
@@ -1041,7 +1044,10 @@ def handle_chat_input(prompt):
                 options_text = "\n\n🟢 Choose your response to your babe:\n\n"
                 for i, opt in enumerate(next_scene, 1):
                     chinese = opt['chinese'].replace('**', '')
-                    options_text += f"{i}️⃣ {chinese} {opt['pinyin']} {opt['english']}\n\n"
+                    pinyin = opt['pinyin']
+                    english = opt['english']
+                    note = opt.get('note', '')
+                    options_text += f"{i}️⃣ {chinese} {pinyin} {english} {note}\n\n"
                 options_text += "🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
                 
                 st.session_state.chat_history.append({
