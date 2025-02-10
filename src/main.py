@@ -318,7 +318,7 @@ class LingobabeChat:
         self.points = 50
         self.current_scene = 1
         self.chat_script = self.load_chat_script()
-        self.last_response = None  # Store last bot response for audio
+        self.last_response = None
 
     def load_chat_script(self):
         """Load and parse the chat script from thechat.md"""
@@ -338,47 +338,42 @@ class LingobabeChat:
         # Remove scene numbering and title
         scene_content = scene_content.split("Lingobabe:", 1)[-1].strip()
         
-        # Change the prompt text
-        parts = scene_content.split("🟢 **User MUST choose one response:**")
+        parts = scene_content.split("🟢 **Choose your response to your babe:**")
         if len(parts) < 2:
             return None
 
         scene_text = parts[0].strip()
         options_text = parts[1]
         
+        # Parse options and responses
         options = []
         responses = {}
-        current_option = None
         
+        # Split into option blocks
         option_blocks = options_text.split("### **If User Selects")
         first_block = option_blocks[0]
         
-        # Parse options
-        for line in first_block.split("\n"):
-            if "「" in line and "」" in line:
-                option_num = len(options) + 1
-                chinese = line.strip()
-                pinyin = next((l.strip() for l in first_block.split("\n")[first_block.split("\n").index(line)+1:] if "(" in l), "")
-                english = next((l.strip() for l in first_block.split("\n")[first_block.split("\n").index(line)+2:] if "_" in l), "")
-                points = next((int(l.split("+")[1].split(",")[0]) for l in first_block.split("\n")[first_block.split("\n").index(line):] if "❤️" in l), 0)
-                
-                options.append({
-                    "chinese": chinese,
-                    "pinyin": pinyin,
-                    "english": english,
-                    "points": points
-                })
-        
-        # Parse responses
+        # Parse each option
         for i, block in enumerate(option_blocks[1:], 1):
-            response_lines = block.split("\n\n")
-            if len(response_lines) > 1:
-                response_text = response_lines[1].strip()
-                # Extract Chinese text from response for audio
-                chinese_response = next((line for line in response_text.split('\n') if '「' in line and '」' in line), '')
+            # Get the option details
+            option_lines = block.split("\n\n")
+            chinese = next((l for l in option_lines if "「" in l), "")
+            pinyin = next((l for l in option_lines if "(" in l and ")" in l), "")
+            english = next((l for l in option_lines if "_" in l), "")
+            
+            options.append({
+                "chinese": chinese,
+                "pinyin": pinyin,
+                "english": english
+            })
+            
+            # Get the response
+            response_start = block.find("**Lingobabe:**")
+            if response_start != -1:
+                response_text = block[response_start:].split("\n\n")[1].strip()
                 responses[i] = {
                     "text": response_text,
-                    "chinese": chinese_response
+                    "chinese": next((l for l in response_text.split('\n') if '「' in l), '')
                 }
 
         return {
@@ -388,26 +383,26 @@ class LingobabeChat:
         }
 
     def handle_choice(self, choice):
-        """Handle user's choice and return appropriate response"""
+        """Process user choice and return appropriate response"""
         try:
             choice = int(choice)
             current_scene = self.get_current_scene()
             
             if current_scene and 1 <= choice <= 3:
-                option = current_scene["options"][choice-1]
                 response = current_scene["responses"].get(choice)
-                
                 if response:
-                    self.points += option["points"]
-                    self.current_scene += 1 if self.current_scene < 5 else 0
-                    # Extract Chinese text from response
+                    self.points += 10  # Base points for valid response
                     chinese_text = response["chinese"].replace("**", "").replace("「", "").replace("」", "")
-                    # Generate audio for the response
                     audio_html = text_to_speech(chinese_text)
+                    
+                    # Move to next scene
+                    self.current_scene += 1
+                    next_scene = self.get_current_scene() if self.current_scene <= 5 else None
+                    
                     return {
                         "text": response["text"],
                         "points": self.points,
-                        "next_scene": self.get_current_scene() if self.current_scene < 6 else None,
+                        "next_scene": next_scene,
                         "chinese": chinese_text,
                         "audio_html": audio_html
                     }
