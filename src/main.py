@@ -689,21 +689,24 @@ def handle_chat_input(prompt):
                 
                 st.session_state.chat_history.append({
                     "role": "assistant",
-                    "content": f"{response['text']}\n\n❤️ Babe Happiness Meter: {response['points']}/100",
+                    "content": f"{response['text']}\n\n❤️ Babe Happiness Meter: {response['points']}/100\n\n🔊 Listen to my response:",
                     "audio_html": audio_html
                 })
             
             # Add scene transition (📌) as a separate message if available
             if "transition" in response and response["transition"]:
+                transition_chinese = response["transition"].split("**")[1].split("」**")[0]
+                transition_audio = text_to_speech(transition_chinese)
+                
                 st.session_state.chat_history.append({
                     "role": "assistant",
                     "content": response["transition"],
-                    "no_audio": True
+                    "audio_html": transition_audio
                 })
             
             # Add next options (🟠) if available
             if "next_options" in response and response["next_options"]:
-                options_text = "\n\n🟢 Choose your response to your babe:\n\n"
+                options_text = "\n🟢 Choose your response to your babe:\n\n"
                 for i, opt in enumerate(response["next_options"], 1):
                     options_text += f"{i}️⃣ {opt['chinese']} {opt['pinyin']} {opt['english']} {opt['note']}\n\n"
                 options_text += "🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
