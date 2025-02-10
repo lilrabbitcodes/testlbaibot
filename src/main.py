@@ -739,21 +739,26 @@ def handle_chat_input(prompt):
         """, unsafe_allow_html=True)
         time.sleep(1)  # Simulate typing delay
     
+    # Get the latest options from the last bot message
+    latest_options = None
+    for message in reversed(st.session_state.chat_history):
+        if message["role"] == "assistant" and "Choose your response to your babe:" in message["content"]:
+            options_text = message["content"]
+            # Extract options from the message
+            options = []
+            for i, line in enumerate(options_text.split('\n'), 1):
+                if f"{i}️⃣" in line:
+                    chinese = line.split(' ')[1]  # Get the Chinese text
+                    options.append(chinese)
+            latest_options = options
+            break
+    
     # Handle audio playback requests
     if prompt.lower().startswith("play audio"):
         try:
             option_num = int(prompt.split()[-1])
-            current_scene = st.session_state.chatbot.get_current_scene()
-            
-            # Check if we're in a sub-scene (next_options)
-            if "last_response" in st.session_state and "next_options" in st.session_state.last_response:
-                options = st.session_state.last_response["next_options"]
-            else:
-                options = current_scene.options if current_scene else None
-            
-            if options and 1 <= option_num <= 3:
-                option = options[option_num-1]
-                chinese = option["chinese"]
+            if latest_options and 1 <= option_num <= len(latest_options):
+                chinese = latest_options[option_num-1]
                 for char in ["「", "」", "**"]:
                     chinese = chinese.replace(char, "")
                 chinese = chinese.strip()
@@ -764,7 +769,7 @@ def handle_chat_input(prompt):
                     typing_placeholder.empty()
                     st.session_state.chat_history.append({
                         "role": "assistant",
-                        "content": f"This is how you pronounce, babe:\n\n{chinese}\n{option['pinyin']}\n{option['english']}",
+                        "content": f"This is how you pronounce, babe:\n\n{chinese}",
                         "audio_html": audio_html
                     })
                     st.rerun()
@@ -782,15 +787,20 @@ def handle_chat_input(prompt):
     # Handle normal responses
     try:
         choice = None
-        current_scene = st.session_state.chatbot.get_current_scene()
         
         if prompt.isdigit():
             choice = int(prompt)
-        elif current_scene:
-            for i, opt in enumerate(current_scene.options, 1):
-                clean_chinese = opt["chinese"].replace("**", "").replace("「", "").replace("」", "").strip()
-                clean_prompt = prompt.replace("「", "").replace("」", "").strip()
-                if clean_chinese in clean_prompt or clean_prompt in clean_chinese:
+            if latest_options and 1 <= choice <= len(latest_options):
+                # Match the choice with the latest options
+                clean_prompt = latest_options[choice-1]
+            else:
+                choice = None
+        elif latest_options:
+            # Try to match the text input with latest options
+            clean_prompt = prompt.replace("「", "").replace("」", "").strip()
+            for i, opt in enumerate(latest_options, 1):
+                clean_opt = opt.replace("「", "").replace("」", "").strip()
+                if clean_opt in clean_prompt or clean_prompt in clean_opt:
                     choice = i
                     break
         
