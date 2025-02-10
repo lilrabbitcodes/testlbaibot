@@ -600,23 +600,35 @@ def handle_chat_input(prompt):
         try:
             option_num = int(prompt.split()[-1])
             scene = st.session_state.chatbot.get_scene()
-            if 1 <= option_num <= 3:
+            if scene and 1 <= option_num <= 3 and option_num <= len(scene["options"]):
                 option = scene["options"][option_num-1]
-                # Format the response with Chinese, Pinyin, and English
+                chinese = option["chinese"].replace("**", "").replace("「", "").replace("」", "")
+                
+                # Generate audio
+                audio_html = text_to_speech(chinese)
+                
+                # Format response with Chinese, Pinyin, and English
                 response_text = (
-                    "This is how you pronounce, babe:\n"
-                    f"{option['chinese'].replace('**', '').replace('「', '').replace('」', '')}\n"
+                    f"Here's how to pronounce:\n\n"
+                    f"{chinese}\n"
                     f"{option['pinyin']}\n"
                     f"{option['english'].replace('_', '')}"
                 )
-                audio_html = text_to_speech(option['chinese'].replace('**', '').replace('「', '').replace('」', ''))
+                
+                # Display response with audio
                 with st.chat_message("assistant", avatar=TUTOR_AVATAR):
                     st.markdown(response_text)
                     st.markdown(audio_html, unsafe_allow_html=True)
-        except (ValueError, IndexError):
-            with st.chat_message("assistant", avatar=TUTOR_AVATAR):
-                st.markdown("Sorry babe, I don't quite understand you.")
-        return
+                
+                # Add to chat history
+                st.session_state.chat_history.append({
+                    "role": "assistant",
+                    "content": response_text,
+                    "audio_html": audio_html
+                })
+                return
+        except (ValueError, IndexError) as e:
+            print(f"Error handling audio request: {e}")
     
     # Handle normal responses
     try:
@@ -628,7 +640,7 @@ def handle_chat_input(prompt):
                 st.markdown(response["text"])
                 st.markdown(f"\n❤️ Babe Happy Meter: {response['points']}/100")
                 
-                # Add audio player for bot's Chinese response
+                # Add audio player for bot's response
                 if "chinese" in response and "audio_html" in response:
                     st.markdown("\n🔊 Listen to my response:")
                     st.markdown(response["audio_html"], unsafe_allow_html=True)
