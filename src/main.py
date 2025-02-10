@@ -328,23 +328,47 @@ class LingobabeChat:
 
 _"Perfect timing. I was just admiring the ambiance—seems like you have good taste."_""",
             options=[
+                # First level options (reply 1)
                 {
                     "chinese": "「我特意订了座位，今晚当然要享受最好的。」",
                     "pinyin": "(Wǒ tèyì dìngle zuòwèi, jīnwǎn dāngrán yào xiǎngshòu zuì hǎo de.)",
                     "english": "I took the liberty of making a reservation. Only the best for tonight.",
-                    "points": 12
-                },
-                {
-                    "chinese": "「希望这里的美食能配得上这氛围。」",
-                    "pinyin": "(Xīwàng zhèlǐ de měishí néng pèi dé shàng zhè fēnwèi.)",
-                    "english": "I hope the food lives up to the atmosphere.",
-                    "points": 9
-                },
-                {
-                    "chinese": "「说实话？我只是跟着网上的好评来的。」",
-                    "pinyin": "(Shuō shíhuà? Wǒ zhǐshì gēnzhe wǎngshàng de hǎopíng lái de.)",
-                    "english": "Honestly? I just followed the best reviews online.",
-                    "points": 6
+                    "points": 12,
+                    "note": "(❤️ +12, Confident & Thoughtful, Uses 'Reservation')",
+                    "lingobabe_reply": {  # Subreply
+                        "text": """_(Smiles approvingly, adjusting her napkin.)_
+
+**「懂得提前计划的男人——我喜欢。这很有自信。」**
+
+(Dǒngdé tíqián jìhuà de nánrén——wǒ xǐhuan. Zhè hěn yǒu zìxìn.)
+
+_"A man who plans ahead—I like that. It shows confidence."_""",
+                        "next_options": [  # Second level options (reply 2)
+                            {
+                                "chinese": "「美好的夜晚，从美好的陪伴开始。」",
+                                "pinyin": "(Měihǎo de yèwǎn, cóng měihǎo de péibàn kāishǐ.)",
+                                "english": "A great evening starts with great company.",
+                                "points": 12,
+                                "note": "(❤️ +12, Charming & Smooth, Uses 'Company')",
+                                "lingobabe_reply": {  # Subsubreply
+                                    "text": """_(Softly smirks, tilting her head.)_
+
+**「听起来很迷人，但我想看看你能否真的做到。」**
+
+(Tīng qǐlái hěn mírén, dàn wǒ xiǎng kànkan nǐ néng fǒu zhēnde zuòdào.)
+
+_"Flattering, but let's see if you live up to your own words."_""",
+                                    "transition": """_The waiter approaches, placing elegantly designed menus before you. A soft glow from the candlelight reflects off the glassware, setting the tone for a refined evening._
+
+**「我们先来点酒吧。你通常喜欢红酒、白酒，还是想尝试点特别的？」**
+
+(Wǒmen xiān lái diǎn jiǔ ba. Nǐ tōngcháng xǐhuan hóngjiǔ, báijiǔ, háishì xiǎng chángshì diǎn tèbié de?)
+
+_"Let's start with a drink. Do you usually go for red, white, or something a little more exciting?"_"""
+                                }
+                            }
+                        ]
+                    }
                 }
             ],
             responses={
