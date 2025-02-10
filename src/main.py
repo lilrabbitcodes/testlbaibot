@@ -847,14 +847,13 @@ _"A comedian, huh? Alright, impress me—what's your best line?"_""",
             
             # If we're handling a sub-choice (next_options)
             if hasattr(st.session_state, 'last_response') and 'next_options' in st.session_state.last_response:
-                sub_response = scene.handle_sub_choice(choice, st.session_state.last_response['next_options'])
-                if sub_response:
+                option = response.get("next_options", [])[choice-1]
+                if option and "lingobabe_reply" in option:
+                    # Return both the immediate reply and transition text
                     return {
-                        "responses": [
-                            {"text": sub_response["lingobabe_reply"]["text"]},
-                            {"text": sub_response["lingobabe_reply"]["transition"], "no_audio": True}
-                        ],
-                        "points": scene.options[choice-1]["points"]
+                        "text": option["lingobabe_reply"]["text"],
+                        "transition": option["lingobabe_reply"]["transition"],
+                        "points": option["points"]
                     }
             
             return {
@@ -1074,7 +1073,7 @@ def handle_chat_input(prompt):
             typing_placeholder.empty()
             st.session_state.chat_history.append({
                 "role": "assistant",
-                "content": f"{response['text']}\n\n❤️ Babe Happiness Meter: {response['points']}/100 (+{points} points)",
+                "content": f"{response['text']}\n\n❤️ Babe Happiness Meter: {response['points']}/100",
                 "audio_html": audio_html
             })
             
