@@ -304,8 +304,20 @@ class Scene:
     def __init__(self, scene_id, initial_text, options, responses):
         self.scene_id = scene_id
         self.initial_text = initial_text
-        self.options = options  # List of {chinese, pinyin, english}
+        self.options = options  # List of {chinese, pinyin, english, points, note}
         self.responses = responses  # Dict of {choice: {text, next_options}}
+    
+    def handle_sub_choice(self, choice, next_options):
+        """Handle sub-choices within a scene"""
+        if 1 <= choice <= len(next_options):
+            option = next_options[choice-1]
+            if "lingobabe_reply" in option:
+                return {
+                    "text": option["lingobabe_reply"]["text"],
+                    "transition": option["lingobabe_reply"]["transition"],
+                    "points": option["points"]
+                }
+        return None
 
 class LingobabeChat:
     def __init__(self):
@@ -1007,7 +1019,7 @@ def handle_chat_input(prompt):
             for i, opt in enumerate(current_scene.options, 1):
                 clean_chinese = opt["chinese"].replace("**", "").replace("「", "").replace("」", "").strip()
                 clean_prompt = prompt.replace("「", "").replace("」", "").strip()
-                if clean_chinese in clean_prompt or clean_prompt in clean_chinese:
+                if clean_chinese in clean_prompt or clean_prompt in clean_prompt:
                     choice = i
                     break
         
@@ -1017,14 +1029,14 @@ def handle_chat_input(prompt):
             # Remove typing indicator
             typing_placeholder.empty()
             
-            # Add Lingobabe's immediate reply
+            # Add Lingobabe's immediate reply with points
             if "text" in response:
                 chinese_text = response["text"].split("**")[1].split("」**")[0]
                 audio_html = text_to_speech(chinese_text)
                 
                 st.session_state.chat_history.append({
                     "role": "assistant",
-                    "content": response["text"],
+                    "content": f"{response['text']}\n\n❤️ Babe Happiness Meter: {response['points']}/100",
                     "audio_html": audio_html
                 })
             
@@ -1056,14 +1068,14 @@ def handle_chat_input(prompt):
             typing_placeholder.empty()
             st.session_state.chat_history.append({
                 "role": "assistant",
-                "content": "Sorry babe, I don't quite understand you."
+                "content": "Sorry babe, I don't quite understand you. Try choosing one of the options."
             })
     except Exception as e:
         print(f"Error handling response: {e}")
         typing_placeholder.empty()
         st.session_state.chat_history.append({
             "role": "assistant", 
-            "content": "Sorry babe, I don't quite understand you."
+            "content": "Sorry babe, I don't quite understand you. Try choosing one of the options."
         })
     
     st.rerun()
