@@ -357,32 +357,41 @@ class LingobabeChat:
             options = []
             responses = {}
             
-            # Split into option blocks
-            option_blocks = options_text.split("### **If User Selects")
-            first_block = option_blocks[0]
+            # Parse options first
+            option_lines = options_text.split("\n\n")
+            current_option = None
             
-            # Parse each option
-            for i, block in enumerate(option_blocks[1:], 1):
-                # Get the option details
-                option_lines = block.split("\n\n")
-                chinese = next((l for l in option_lines if "「" in l), "")
-                pinyin = next((l for l in option_lines if "(" in l and ")" in l), "")
-                english = next((l for l in option_lines if "_" in l), "")
-                
-                options.append({
-                    "chinese": chinese,
-                    "pinyin": pinyin,
-                    "english": english
-                })
-                
-                # Get the response
-                response_start = block.find("**Lingobabe:**")
-                if response_start != -1:
-                    response_text = block[response_start:].split("\n\n")[1].strip()
-                    responses[i] = {
-                        "text": response_text,
-                        "chinese": next((l for l in response_text.split('\n') if '「' in l), '')
-                    }
+            for line in option_lines:
+                if "1️⃣" in line or "2️⃣" in line or "3️⃣" in line:
+                    # This is a new option
+                    option_parts = line.split("\n")
+                    if len(option_parts) >= 3:
+                        chinese = next((l for l in option_parts if "「" in l), "")
+                        pinyin = next((l for l in option_parts if "(" in l and ")" in l), "")
+                        english = next((l for l in option_parts if '"' in l), "")
+                        points = next((int(l.split("+")[1].split(",")[0]) for l in option_parts if "❤️" in l), 0)
+                        
+                        option = {
+                            "chinese": chinese,
+                            "pinyin": pinyin,
+                            "english": english,
+                            "points": points
+                        }
+                        options.append(option)
+            
+            # Parse responses
+            response_sections = options_text.split("### **If User Selects")
+            for i, section in enumerate(response_sections[1:], 1):
+                response_lines = section.split("\n\n")
+                for j, line in enumerate(response_lines):
+                    if "**Lingobabe:**" in line:
+                        response_text = response_lines[j+1] if j+1 < len(response_lines) else ""
+                        chinese = next((l for l in response_text.split('\n') if '「' in l), '')
+                        responses[i] = {
+                            "text": response_text.strip(),
+                            "chinese": chinese
+                        }
+                        break
 
             return {
                 "text": scene_text,
@@ -449,7 +458,11 @@ _"Perfect timing. I was just admiring the ambiance—seems like you have good ta
         # Add options
         options_message = "\n\n🟢 **Choose your response to your babe:**\n\n"
         for i, opt in enumerate(current_scene["options"], 1):
-            options_message += f"{i}️⃣ {opt['chinese']}\n{opt['pinyin']}\n{opt['english']}\n\n"
+            options_message += (
+                f"{i}️⃣ {opt['chinese']} _(❤️ +{opt['points']})_\n"
+                f"{opt['pinyin']}\n"
+                f"{opt['english']}\n\n"
+            )
         
         options_message += "\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
         
