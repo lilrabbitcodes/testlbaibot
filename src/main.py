@@ -324,55 +324,78 @@ class LingobabeChat:
         with open("src/assets/thechat.md", "r", encoding="utf-8") as f:
             return f.read()
 
-    def get_scene(self):
-        """Get current scene content"""
-        scenes = self.chat_script.split("## **")
-        for scene in scenes:
-            if f"Scene {self.current_scene}:" in scene:
-                return self.parse_scene(scene)
-        return None
-
     def parse_scene(self, scene_content):
         """Parse scene content into dialogue structure"""
-        # Get main scene text
-        main_text = scene_content.split("🟢 **User MUST choose one response:**")[0]
-        main_text = main_text.split("Lingobabe:", 1)[1].strip()
+        try:
+            # Split into main content and options
+            parts = scene_content.split("🟢 **User MUST choose one response:**")
+            if len(parts) < 2:
+                return None
 
-        # Get options
-        options = []
-        responses = {}
-        
-        # Parse the three options
-        option_sections = scene_content.split("### **If User Selects")
-        for i, section in enumerate(option_sections[1:], 1):
-            lines = section.split("\n")
-            # Get option text
+            # Get main scene text (remove scene title and Lingobabe prefix)
+            main_text = parts[0].split("Lingobabe:", 1)[1].strip() if "Lingobabe:" in parts[0] else parts[0].strip()
+            
+            # Parse options and responses
+            options = []
+            responses = {}
+            
+            # Split into option blocks
+            option_blocks = parts[1].split("### **If User Selects")
+            
+            # Parse each option block
+            for i, block in enumerate(option_blocks[1:], 1):
+                # Extract option details
+                option = self.extract_option(block)
+                if option:
+                    options.append(option)
+                
+                # Extract response
+                response = self.extract_response(block)
+                if response:
+                    responses[i] = response
+
+            return {
+                "text": main_text,
+                "options": options,
+                "responses": responses
+            }
+        except Exception as e:
+            print(f"Error parsing scene: {e}")
+            return None
+
+    def extract_option(self, block):
+        """Extract option details from a block"""
+        try:
+            lines = block.split("\n")
             chinese = next((l for l in lines if "「" in l), "")
             pinyin = next((l for l in lines if "(" in l and ")" in l), "")
             english = next((l for l in lines if "_" in l), "")
             points = int(next((l.split("+")[1].split(",")[0] for l in lines if "❤️" in l), "0"))
             
-            options.append({
+            return {
                 "chinese": chinese,
                 "pinyin": pinyin,
                 "english": english,
                 "points": points
-            })
-            
-            # Get response text
-            response_start = section.find("**Lingobabe:**")
-            if response_start != -1:
-                response_text = section[response_start:].split("\n\n")[1].strip()
-                responses[i] = {
-                    "text": response_text,
-                    "points": points
-                }
+            }
+        except Exception:
+            return None
 
-        return {
-            "text": main_text,
-            "options": options,
-            "responses": responses
-        }
+    def extract_response(self, block):
+        """Extract response details from a block"""
+        try:
+            response_start = block.find("**Lingobabe:**")
+            if response_start != -1:
+                response_parts = block[response_start:].split("\n\n")
+                response_text = response_parts[1].strip() if len(response_parts) > 1 else ""
+                chinese = next((l for l in response_text.split('\n') if '「' in l), '')
+                
+                return {
+                    "text": response_text,
+                    "chinese": chinese
+                }
+        except Exception:
+            return None
 
     def handle_choice(self, choice):
         """Process user choice and return response"""
