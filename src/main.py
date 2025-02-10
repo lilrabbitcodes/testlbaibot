@@ -317,9 +317,8 @@ class Scene:
         # Get the response text from the option if it exists
         response_text = selected_option.get("response", "")
         
-        # If no specific response, use the universal transition text
-        if not response_text:
-            response_text = """_The waiter approaches, placing elegantly designed menus before you. A soft glow from the candlelight reflects off the glassware, setting the tone for a refined evening._
+        # Add universal narrative transition and Scene 2 intro
+        response_text += """\n\n_The waiter approaches, placing elegantly designed menus before you. A soft glow from the candlelight reflects off the glassware, setting the tone for a refined evening._
 
 _(Flicks her eyes toward the wine list, then back at you.)_
 
@@ -328,10 +327,11 @@ _(Flicks her eyes toward the wine list, then back at you.)_
 (Wǒmen xiān lái diǎn jiǔ ba. Nǐ tōngcháng xǐhuan hóngjiǔ, báijiǔ, háishì xiǎng chángshì diǎn tèbié de?)
 
 _"Let's start with a drink. Do you usually go for red, white, or something a little more exciting?"_"""
-            
+        
         return {
             "text": response_text,
-            "points": selected_option.get("points", 0)
+            "points": selected_option.get("points", 0),
+            "next_options": self.scenes[2].options if self.scenes.get(2) else None
         }
 
 class LingobabeChat:
