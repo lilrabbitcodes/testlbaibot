@@ -315,22 +315,19 @@ class Scene:
         selected_option = next_options[choice-1]
         
         # Get the response text from the option if it exists
-        response_text = selected_option.get("response", "")
-        
-        # If no specific response, use the universal response
-        if not response_text:
-            response_text = """_(Chuckles lightly.)_
+        response_text = selected_option.get("response", """_(Chuckles lightly.)_
 
 **「确实如此。到目前为止，你的表现不错。」**
 
 (Quèshí rúcǐ. Dào mùqián wéi zhǐ, nǐ de biǎoxiàn búcuò.)
 
-_"That's true. And so far, I'd say you're off to a good start."_"""
+_"That's true. And so far, I'd say you're off to a good start."_""")
         
-        # Add universal narrative transition and Scene 2 intro
-        response_text += """\n\n_The waiter approaches, placing elegantly designed menus before you. A soft glow from the candlelight reflects off the glassware, setting the tone for a refined evening._
-
-_(Flicks her eyes toward the wine list, then back at you.)_
+        # Universal narrative transition
+        transition_text = """_The waiter approaches, placing elegantly designed menus before you. A soft glow from the candlelight reflects off the glassware, setting the tone for a refined evening._"""
+        
+        # Scene 2 intro
+        scene2_text = """_(Flicks her eyes toward the wine list, then back at you.)_
 
 **「我们先来点酒吧。你通常喜欢红酒、白酒，还是想尝试点特别的？」**
 
@@ -339,26 +336,37 @@ _(Flicks her eyes toward the wine list, then back at you.)_
 _"Let's start with a drink. Do you usually go for red, white, or something a little more exciting?"_"""
         
         return {
-            "text": response_text,
-            "points": selected_option.get("points", 0),
-            "next_options": [
+            "responses": [
                 {
-                    "chinese": "「红酒，毫无疑问。一款经典的陈年佳酿总是最有魅力。」",
-                    "pinyin": "(Hóngjiǔ, háowú yíwèn. Yī kuǎn jīngdiǎn de chénnián jiāniàng zǒng shì zuì yǒu mèilì.)",
-                    "english": "Red, always. There's something bold and timeless about a great vintage.",
-                    "points": 12
+                    "text": response_text,
+                    "points": selected_option.get("points", 0)
                 },
                 {
-                    "chinese": "「白酒，尤其是清爽的那种，最适合放松。」",
-                    "pinyin": "(Báijiǔ, yóuqí shì qīngshuǎng de nà zhǔng, zuì shìhé fàngsōng.)",
-                    "english": "White, especially something crisp and refreshing.",
-                    "points": 10
+                    "text": transition_text,
+                    "no_audio": True  # Skip audio for narrative transition
                 },
                 {
-                    "chinese": "「我喜欢尝试新鲜的选择，看看侍酒师会推荐什么。」",
-                    "pinyin": "(Wǒ xǐhuan chángshì xīnxiān de xuǎnzé, kànkan shìjiǔshī huì tuījiàn shénme.)",
-                    "english": "I like to mix it up. Let's see what the sommelier recommends.",
-                    "points": 11
+                    "text": scene2_text,
+                    "next_options": [
+                        {
+                            "chinese": "「红酒，毫无疑问。一款经典的陈年佳酿总是最有魅力。」",
+                            "pinyin": "(Hóngjiǔ, háowú yíwèn. Yī kuǎn jīngdiǎn de chénnián jiāniàng zǒng shì zuì yǒu mèilì.)",
+                            "english": "Red, always. There's something bold and timeless about a great vintage.",
+                            "points": 12
+                        },
+                        {
+                            "chinese": "「白酒，尤其是清爽的那种，最适合放松。」",
+                            "pinyin": "(Báijiǔ, yóuqí shì qīngshuǎng de nà zhǔng, zuì shìhé fàngsōng.)",
+                            "english": "White, especially something crisp and refreshing.",
+                            "points": 10
+                        },
+                        {
+                            "chinese": "「我喜欢尝试新鲜的选择，看看侍酒师会推荐什么。」",
+                            "pinyin": "(Wǒ xǐhuan chángshì xīnxiān de xuǎnzé, kànkan shìjiǔshī huì tuījiàn shénme.)",
+                            "english": "I like to mix it up. Let's see what the sommelier recommends.",
+                            "points": 11
+                        }
+                    ]
                 }
             ]
         }
@@ -554,13 +562,10 @@ _"Let's start with a drink. Do you usually go for red, white, or something a lit
         if hasattr(st.session_state, 'last_response') and 'next_options' in st.session_state.last_response:
             sub_response = scene.handle_sub_choice(choice, st.session_state.last_response['next_options'])
             if sub_response:
-                self.points += sub_response["points"]
+                self.points += sub_response["responses"][0]["points"]  # Add points from first response
                 self.current_scene = 2  # Move to next scene after sub-scene
-                return {
-                    "text": sub_response["text"],
-                    "points": self.points
-                }
-            
+                return sub_response
+        
         # Handle main scene response
         response = scene.responses.get(choice)
         if response:
