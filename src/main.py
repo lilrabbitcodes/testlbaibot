@@ -416,23 +416,45 @@ class LingobabeChat:
         except (ValueError, IndexError):
             return {"text": "Sorry babe, I don't quite understand you.", "points": self.points}
 
-# Update the initialization message format
+# Initialize session state
 if "chatbot" not in st.session_state:
     st.session_state.chatbot = LingobabeChat()
     current_scene = st.session_state.chatbot.get_current_scene()
-    st.session_state.chat_history = [{
-        "role": "assistant",
-        "content": current_scene["text"] + "\n\n🟢 **Choose your response to your babe:**\n\n" + "\n\n".join(
+    
+    # Extract Chinese text from the first message
+    first_chinese = next(
+        (line.strip() for line in current_scene["text"].split('\n') 
+         if '「' in line and '」' in line), 
+        ''
+    ).replace('「', '').replace('」', '')
+    
+    # Generate audio for first message
+    first_audio = text_to_speech(first_chinese) if first_chinese else ""
+    
+    # Format initial message
+    initial_message = (
+        current_scene["text"] + 
+        "\n\n🟢 **Choose your response to your babe:**\n\n" + 
+        "\n\n".join(
             f"{i}️⃣ {opt['chinese']}\n{opt['pinyin']}\n{opt['english']}"
             for i, opt in enumerate(current_scene["options"], 1)
-        ) + "\n\n🔊 Want to hear how to pronounce my response? Type 'play audio'!"
+        ) + 
+        "\n\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
+    )
+    
+    # Add to chat history with audio
+    st.session_state.chat_history = [{
+        "role": "assistant",
+        "content": initial_message,
+        "audio_html": first_audio
     }]
 
 # Display chat history
 for message in st.session_state.chat_history:
     with st.chat_message(message["role"], avatar=TUTOR_AVATAR if message["role"] == "assistant" else USER_AVATAR):
         st.markdown(message["content"])
-        if "audio_html" in message:
+        if "audio_html" in message and message["audio_html"]:
+            st.markdown("\n🔊 Listen to my response:")
             st.markdown(message["audio_html"], unsafe_allow_html=True)
 
 # Add function to show typing indicator
