@@ -341,7 +341,7 @@ if "user_info" not in st.session_state:
 
 # Initialize session state
 if "chatbot" not in st.session_state:
-    st.session_state.chatbot = LingobabeChatbot()
+    st.session_state.chatbot = LingobabeChat()
     
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
@@ -673,88 +673,113 @@ def handle_audio_request(text):
             pass
     return None
 
-class LingobabeChatbot:
+class ChatScene:
+    def __init__(self, scene_text, options, responses):
+        self.scene_text = scene_text
+        self.options = options  # List of {chinese, pinyin, english, points}
+        self.responses = responses  # Dict of {choice: {text, points, next_scene}}
+
+class LingobabeChat:
     def __init__(self):
-        self.points = 50  # Initial Babe Happy Meter score
+        self.points = 50  # Starting points
         self.current_scene = 1
         self.scenes = self.load_scenes()
 
     def load_scenes(self):
         """Load all scenes from thechat.md"""
-        scenes = {}
-        current_scene = None
-        
-        # Read thechat.md content
         with open("src/assets/thechat.md", "r", encoding="utf-8") as f:
             content = f.read()
+
+        # Split content into scenes
+        scene_sections = content.split("## **")
+        scenes = {}
+        
+        for section in scene_sections:
+            if not section.strip():
+                continue
+                
+            # Parse scene number
+            scene_num = int(section.split("Scene")[1].split(":")[0].strip())
             
-        # Parse scenes and their responses
-        # This is a simplified example for Scene 1
-        scenes[1] = {
-            "intro": {
-                "scene_text": """_(Seated at a beautifully set table, she gracefully looks up as you arrive.)_
-
-**「刚刚好，我正欣赏着这里的氛围——看来你的品味不错。」**
-
-(Gānggāng hǎo, wǒ zhèng xīnshǎng zhe zhèlǐ de fēnwèi——kànlái nǐ de pǐnwèi búcuò.)
-
-_"Perfect timing. I was just admiring the ambiance—seems like you have good taste."_""",
-                "options": [
-                    {
-                        "chinese": "「我特意订了座位，今晚当然要享受最好的。」",
-                        "pinyin": "(Wǒ tèyì dìngle zuòwèi, jīnwǎn dāngrán yào xiǎngshòu zuì hǎo de.)",
-                        "english": '"I took the liberty of making a reservation. Only the best for tonight."',
-                        "points": 12
-                    },
-                    {
-                        "chinese": "「希望这里的美食能配得上这氛围。」",
-                        "pinyin": "(Xīwàng zhèlǐ de měishí néng pèi dé shàng zhè fēnwèi.)",
-                        "english": '"I hope the food lives up to the atmosphere."',
-                        "points": 9
-                    },
-                    {
-                        "chinese": "「说实话？我只是跟着网上的好评来的。」",
-                        "pinyin": "(Shuō shíhuà? Wǒ zhǐshì gēnzhe wǎngshàng de hǎopíng lái de.)",
-                        "english": '"Honestly? I just followed the best reviews online."',
-                        "points": 6
-                    }
-                ]
-            },
-            "responses": {
-                1: {
-                    "text": """_(Smiles approvingly, adjusting her napkin.)_
-
-**「懂得提前计划的男人——我喜欢。这很有自信。」**
-
-(Dǒngdé tíqián jìhuà de nánrén——wǒ xǐhuan. Zhè hěn yǒu zìxìn.)
-
-_"A man who plans ahead—I like that. It shows confidence."_""",
-                    "points": 12
-                },
-                # Add other responses similarly
-            }
-        }
+            # Parse scene text (everything before options)
+            scene_parts = section.split("🟢 **User MUST choose one response:**")
+            scene_text = scene_parts[0].strip()
+            
+            # Parse options and responses
+            options = []
+            responses = {}
+            
+            if len(scene_parts) > 1:
+                options_text = scene_parts[1]
+                option_blocks = options_text.split("\n\n")
+                
+                for i, block in enumerate(option_blocks, 1):
+                    if "「" not in block:
+                        continue
+                        
+                    lines = block.strip().split("\n")
+                    chinese = lines[0].strip()
+                    pinyin = lines[1].strip() if len(lines) > 1 else ""
+                    english = lines[2].strip() if len(lines) > 2 else ""
+                    points = int(lines[3].split("+")[1].split(",")[0]) if len(lines) > 3 else 0
+                    
+                    options.append({
+                        "chinese": chinese,
+                        "pinyin": pinyin,
+                        "english": english,
+                        "points": points
+                    })
+                    
+                    # Find corresponding response
+                    response_start = section.find(f"### **If User Selects {i}️⃣:")
+                    if response_start != -1:
+                        response_text = section[response_start:].split("\n\n")[1].strip()
+                        responses[i] = {
+                            "text": response_text,
+                            "points": points,
+                            "next_scene": scene_num + 1 if scene_num < 5 else None
+                        }
+            
+            scenes[scene_num] = ChatScene(scene_text, options, responses)
+        
         return scenes
 
     def get_current_scene(self):
-        """Get the current scene content"""
-        return self.scenes[self.current_scene]["intro"]
+        """Get current scene content"""
+        return self.scenes[self.current_scene]
 
-    def get_response(self, choice):
-        """Get response for user's choice"""
+    def handle_response(self, choice):
+        """Process user response and return appropriate content"""
         try:
             choice = int(choice)
-            if 1 <= choice <= 3:
-                response = self.scenes[self.current_scene]["responses"].get(choice)
-                if response:
-                    self.points += response["points"]
+            scene = self.scenes[self.current_scene]
+            
+            if 1 <= choice <= 3 and choice in scene.responses:
+                response = scene.responses[choice]
+                self.points += response["points"]
+                next_scene = response["next_scene"]
+                
+                if next_scene:
+                    self.current_scene = next_scene
                     return {
                         "text": response["text"],
-                        "points": self.points
+                        "points": self.points,
+                        "next_scene": self.scenes[next_scene]
+                    }
+                else:
+                    return {
+                        "text": response["text"],
+                        "points": self.points,
+                        "next_scene": None
                     }
         except ValueError:
             pass
-        return {"text": "Sorry babe, I don't quite understand you.", "points": self.points}
+            
+        return {
+            "text": "Sorry babe, I don't quite understand you.",
+            "points": self.points,
+            "next_scene": None
+        }
 
     def format_scene(self, scene):
         """Format scene content for display"""
