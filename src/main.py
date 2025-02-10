@@ -409,7 +409,128 @@ _"I have a feeling it will. But a perfect dinner is more than just the food."_""
             }
         )
         
-        # Add Scene 2, 3, 4, and 5...
+        # Scene 2: Wine & Drink Selection
+        scenes[2] = Scene(
+            scene_id=2,
+            initial_text="""_(Flicks her eyes toward the wine list, then back at you.)_
+
+**「我们先来点酒吧。你通常喜欢红酒、白酒，还是想尝试点特别的？」**
+
+(Wǒmen xiān lái diǎn jiǔ ba. Nǐ tōngcháng xǐhuan hóngjiǔ, báijiǔ, háishì xiǎng chángshì diǎn tèbié de?)
+
+_"Let's start with a drink. Do you usually go for red, white, or something a little more exciting?"_""",
+            options=[
+                {
+                    "chinese": "「红酒，毫无疑问。一款经典的陈年佳酿总是最有魅力。」",
+                    "pinyin": "(Hóngjiǔ, háowú yíwèn. Yī kuǎn jīngdiǎn de chénnián jiāniàng zǒng shì zuì yǒu mèilì.)",
+                    "english": "Red, always. There's something bold and timeless about a great vintage.",
+                    "points": 12
+                },
+                {
+                    "chinese": "「白酒，尤其是清爽的那种，最适合放松。」",
+                    "pinyin": "(Báijiǔ, yóuqí shì qīngshuǎng de nà zhǔng, zuì shìhé fàngsōng.)",
+                    "english": "White, especially something crisp and refreshing.",
+                    "points": 10
+                },
+                {
+                    "chinese": "「我喜欢尝试新鲜的选择，看看侍酒师会推荐什么。」",
+                    "pinyin": "(Wǒ xǐhuan chángshì xīnxiān de xuǎnzé, kànkan shìjiǔshī huì tuījiàn shénme.)",
+                    "english": "I like to mix it up. Let's see what the sommelier recommends.",
+                    "points": 11
+                }
+            ],
+            responses={
+                1: {
+                    "text": """_(Nods with appreciation.)_
+
+**「懂酒的男人很有魅力。让我猜猜——你是做什么工作的？」**
+
+(Dǒng jiǔ de nánrén hěn yǒu mèilì. Ràng wǒ cāi cāi——nǐ shì zuò shénme gōngzuò de?)
+
+_"A man who knows his wine is attractive. Let me guess—what do you do for work?"_""",
+                    "next_options": [
+                        {
+                            "chinese": "「我在金融行业工作，压力挺大的，所以更懂得享受生活。」",
+                            "pinyin": "(Wǒ zài jīnróng hángyè gōngzuò, yālì tǐng dà de, suǒyǐ gèng dǒngdé xiǎngshòu shēnghuó.)",
+                            "english": "I work in finance. High pressure, so I've learned to enjoy life's pleasures.",
+                            "points": 12
+                        },
+                        {
+                            "chinese": "「我是一名创业者，喜欢探索新事物。」",
+                            "pinyin": "(Wǒ shì yī míng chuàngyè zhě, xǐhuan tànsuǒ xīn shìwù.)",
+                            "english": "I'm an entrepreneur. I love exploring new things.",
+                            "points": 11
+                        },
+                        {
+                            "chinese": "「工作只是生活的一部分，重要的是保持平衡。」",
+                            "pinyin": "(Gōngzuò zhǐshì shēnghuó de yī bùfèn, zhòngyào de shì bǎochí pínghéng.)",
+                            "english": "Work is just one part of life. Balance is what matters.",
+                            "points": 10
+                        }
+                    ]
+                },
+                2: {
+                    "text": """_(Smiles warmly.)_
+
+**「清爽的选择，就像你给人的感觉一样。你平时喜欢什么样的活动？」**
+
+(Qīngshuǎng de xuǎnzé, jiù xiàng nǐ gěi rén de gǎnjué yīyàng. Nǐ píngshí xǐhuan shénme yàng de huódòng?)
+
+_"A refreshing choice, just like the impression you give. What kind of activities do you enjoy?"_""",
+                    "next_options": [
+                        {
+                            "chinese": "「我喜欢户外运动，保持活力。」",
+                            "pinyin": "(Wǒ xǐhuan hùwài yùndòng, bǎochí huólì.)",
+                            "english": "I enjoy outdoor activities, keeps me energized.",
+                            "points": 11
+                        },
+                        {
+                            "chinese": "「我更喜欢文化活动，比如音乐会或者艺术展。」",
+                            "pinyin": "(Wǒ gèng xǐhuan wénhuà huódòng, bǐrú yīnyuèhuì huòzhě yìshùzhǎn.)",
+                            "english": "I prefer cultural activities, like concerts or art exhibitions.",
+                            "points": 12
+                        },
+                        {
+                            "chinese": "「在家看看电影，约上朋友聊聊天就很好。」",
+                            "pinyin": "(Zài jiā kànkan diànyǐng, yuē shàng péngyou liáoliao tiān jiù hěn hǎo.)",
+                            "english": "Movies at home and chatting with friends is perfect for me.",
+                            "points": 9
+                        }
+                    ]
+                },
+                3: {
+                    "text": """_(Eyes sparkle with interest.)_
+
+**「有趣的选择。看来你是个喜欢冒险的人？」**
+
+(Yǒuqù de xuǎnzé. Kànlái nǐ shì gè xǐhuan màoxiǎn de rén?)
+
+_"Interesting choice. You must be the adventurous type?"_""",
+                    "next_options": [
+                        {
+                            "chinese": "「我曾经独自旅行了好几个月——这是我做过最棒的决定。」",
+                            "pinyin": "(Wǒ céngjīng dúzì lǚxíng le hǎo jǐ gè yuè——zhè shì wǒ zuò guò zuì bàng de juédìng.)",
+                            "english": "I once traveled solo for months—best decision I ever made.",
+                            "points": 12
+                        },
+                        {
+                            "chinese": "「生活中需要一些惊喜，但也要有分寸。」",
+                            "pinyin": "(Shēnghuó zhōng xūyào yīxiē jīngxǐ, dàn yě yào yǒu fèncùn.)",
+                            "english": "Life needs surprises, but with a touch of caution.",
+                            "points": 10
+                        },
+                        {
+                            "chinese": "「我觉得尝试新事物很有意思，但不是每次都要冒险。」",
+                            "pinyin": "(Wǒ juéde chángshì xīn shìwù hěn yǒu yìsi, dàn bùshì měi cì dōu yào màoxiǎn.)",
+                            "english": "I enjoy trying new things, but I don't always need the thrill.",
+                            "points": 9
+                        }
+                    ]
+                }
+            }
+        )
+        
+        # Add Scene 3, 4, 5...
         return scenes
 
     def get_current_scene(self):
