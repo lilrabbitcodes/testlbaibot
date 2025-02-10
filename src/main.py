@@ -345,146 +345,43 @@ _"Perfect timing. I was just admiring the ambiance—seems like you have good ta
                     "pinyin": "(Wǒ tèyì dìngle zuòwèi, jīnwǎn dāngrán yào xiǎngshòu zuì hǎo de.)",
                     "english": "I took the liberty of making a reservation. Only the best for tonight.",
                     "points": 12,
-                    "note": "(❤️ +12, Confident & Thoughtful, Uses 'Reservation')"
-                },
-                {
-                    "chinese": "「希望这里的美食能配得上这氛围。」",
-                    "pinyin": "(Xīwàng zhèlǐ de měishí néng pèi dé shàng zhè fēnwèi.)",
-                    "english": "I hope the food lives up to the atmosphere.",
-                    "points": 9
-                },
-                {
-                    "chinese": "「说实话？我只是跟着网上的好评来的。」",
-                    "pinyin": "(Shuō shíhuà? Wǒ zhǐshì gēnzhe wǎngshàng de hǎopíng lái de.)",
-                    "english": "Honestly? I just followed the best reviews online.",
-                    "points": 6
-                }
-            ],
-            responses={
-                1: {
-                    "text": """_(Smiles approvingly, adjusting her napkin.)_
+                    "note": "(❤️ +12, Confident & Thoughtful, Uses 'Reservation')",
+                    "lingobabe_reply": {
+                        "text": """_(Smiles approvingly, adjusting her napkin.)_
 
 **「懂得提前计划的男人——我喜欢。这很有自信。」**
 
 (Dǒngdé tíqián jìhuà de nánrén——wǒ xǐhuan. Zhè hěn yǒu zìxìn.)
 
 _"A man who plans ahead—I like that. It shows confidence."_""",
-                    "next_options": [
-                        {
-                            "chinese": "「美好的夜晚，从美好的陪伴开始。」",
-                            "pinyin": "(Měihǎo de yèwǎn, cóng měihǎo de péibàn kāishǐ.)",
-                            "english": "A great evening starts with great company.",
-                            "points": 12,
-                            "note": "(❤️ +12, Charming & Smooth, Uses 'Company')",
-                            "lingobabe_reply": {
-                                "text": """_(Softly smirks, tilting her head.)_
+                        "next_options": [
+                            {
+                                "chinese": "「美好的夜晚，从美好的陪伴开始。」",
+                                "pinyin": "(Měihǎo de yèwǎn, cóng měihǎo de péibàn kāishǐ.)",
+                                "english": "A great evening starts with great company.",
+                                "points": 12,
+                                "note": "(❤️ +12, Charming & Smooth, Uses 'Company')",
+                                "lingobabe_reply": {
+                                    "text": """_(Softly smirks, tilting her head.)_
 
 **「听起来很迷人，但我想看看你能否真的做到。」**
 
 (Tīng qǐlái hěn mírén, dàn wǒ xiǎng kànkan nǐ néng fǒu zhēnde zuòdào.)
 
 _"Flattering, but let's see if you live up to your own words."_""",
-                                "transition": """_The waiter approaches, placing elegantly designed menus before you. A soft glow from the candlelight reflects off the glassware, setting the tone for a refined evening._
+                                    "transition": """_The waiter approaches, placing elegantly designed menus before you. A soft glow from the candlelight reflects off the glassware, setting the tone for a refined evening._
 
 **「我们先来点酒吧。你通常喜欢红酒、白酒，还是想尝试点特别的？」**
 
 (Wǒmen xiān lái diǎn jiǔ ba. Nǐ tōngcháng xǐhuan hóngjiǔ, báijiǔ, háishì xiǎng chángshì diǎn tèbié de?)
 
 _"Let's start with a drink. Do you usually go for red, white, or something a little more exciting?"_"""
+                                }
                             }
-                        },
-                        {
-                            "chinese": "「细节很重要，尤其是这样的夜晚。」",
-                            "pinyin": "(Xìjié hěn zhòngyào, yóuqí shì zhèyàng de yèwǎn.)",
-                            "english": "Details matter, especially when the evening is important.",
-                            "points": 11,
-                            "response": {
-                                "text": """_(Nods approvingly.)_
-
-**「对细节敏感的男人，令人印象深刻。」**
-
-(Duì xìjié mǐngǎn de nánrén, lìng rén yìnxiàng shēnkè.)
-
-_"A man with an eye for detail—impressive."_""",
-                                "transition": """_The waiter approaches, placing elegantly designed menus before you. A soft glow from the candlelight reflects off the glassware, setting the tone for a refined evening._
-
-**「我们先来点酒吧。你通常喜欢红酒、白酒，还是想尝试点特别的？」**
-
-(Wǒmen xiān lái diǎn jiǔ ba. Nǐ tōngcháng xǐhuan hóngjiǔ, báijiǔ, háishì xiǎng chángshì diǎn tèbié de?)
-
-_"Let's start with a drink. Do you usually go for red, white, or something a little more exciting?"_"""
-                            }
-                        },
-                        {
-                            "chinese": "「一点小小的努力，总是值得的。」",
-                            "pinyin": "(Yīdiǎn xiǎoxiǎo de nǔlì, zǒng shì zhídé de.)",
-                            "english": "Well, a little effort goes a long way.",
-                            "points": 10,
-                            "response": {
-                                "text": """_(Chuckles lightly.)_
-
-**「确实如此。到目前为止，你的表现不错。」**
-
-(Quèshí rúcǐ. Dào mùqián wéi zhǐ, nǐ de biǎoxiàn búcuò.)
-
-_"That's true. And so far, I'd say you're off to a good start."_""",
-                                "transition": """_The waiter approaches, placing elegantly designed menus before you. A soft glow from the candlelight reflects off the glassware, setting the tone for a refined evening._
-
-**「我们先来点酒吧。你通常喜欢红酒、白酒，还是想尝试点特别的？」**
-
-(Wǒmen xiān lái diǎn jiǔ ba. Nǐ tōngcháng xǐhuan hóngjiǔ, báijiǔ, háishì xiǎng chángshì diǎn tèbié de?)
-
-_"Let's start with a drink. Do you usually go for red, white, or something a little more exciting?"_"""
-                            }
-                        }
-                    ]
-                },
-                2: {
-                    "text": """_(Glances at the menu, intrigued.)_
-
-**「我也这么觉得。但完美的晚餐，不仅仅是食物而已。」**
-
-(Wǒ yě zhème juéde. Dàn wánměi de wǎncān, bù jǐnjǐn shì shíwù éryǐ.)
-
-_"I have a feeling it will. But a perfect dinner is more than just the food."_""",
-                    "next_options": [
-                        {
-                            "chinese": "「确实如此。美好的氛围、可口的食物，再加上一位美丽的约会对象，才能令人难忘。」",
-                            "pinyin": "(Quèshí rúcǐ. Měihǎo de fēnwèi, kěkǒu de shíwù, zài jiā shàng yī wèi měilì de yuēhuì duìxiàng, cáinéng lìng rén nánwàng.)",
-                            "english": "True. A great ambiance, good food, and a beautiful date make it unforgettable.",
-                            "points": 11,
-                            "response": {
-                                "text": """_(Smirks, amused.)_
-
-**「油嘴滑舌啊。看看你能保持多久。」**
-
-(Yóuzuǐhuáshé a. Kànkan nǐ néng bǎochí duōjiǔ.)
-
-_"Smooth talker. Let's see if you can keep this up all night."_""",
-                                "transition": """_The sommelier approaches with an elegant wine list, waiting patiently for your selection._
-
-**「让我们看看你的品味如何。」**
-
-(Ràng wǒmen kànkan nǐ de pǐnwèi rúhé.)
-
-_"Let's see about your taste then."_"""
-                            }
-                        },
-                        {
-                            "chinese": "「我认为完美的体验在于平衡——环境、味道、还有陪伴。」",
-                            "pinyin": "(Wǒ rènwéi wánměi de tǐyàn zàiyú pínghéng——huánjìng, wèidào, háiyǒu péibàn.)",
-                            "english": "I believe every experience is about balance—the setting, the flavors, the company.",
-                            "points": 10
-                        },
-                        {
-                            "chinese": "「我只是为了吃好吃的来的。只要好吃，我就满足了。」",
-                            "pinyin": "(Wǒ zhǐshì wèile chī hǎochī de lái de. Zhǐyào hǎochī, wǒ jiù mǎnzú le.)",
-                            "english": "I'm just here for the food. If it's good, I'll be happy.",
-                            "points": 7
-                        }
-                    ]
+                        ]
+                    }
                 }
-            }
+            ]
         )
         
         # Scene 2: Wine & Drink Selection
@@ -1048,12 +945,11 @@ def handle_chat_input(prompt):
                     "no_audio": True
                 })
             
-            # If there's a next scene, add it to chat history
-            if "next_options" in response and response["next_options"]:
-                next_scene = response["next_options"]
+            # If there's next options, add them to chat history
+            if "next_options" in response:
                 options_text = "\n\n🟢 Choose your response to your babe:\n\n"
-                for i, opt in enumerate(next_scene, 1):
-                    chinese = opt['chinese'].replace('**', '')
+                for i, opt in enumerate(response["next_options"], 1):
+                    chinese = opt['chinese']
                     pinyin = opt['pinyin']
                     english = opt['english']
                     note = opt.get('note', '')
