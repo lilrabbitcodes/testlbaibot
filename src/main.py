@@ -764,4 +764,5 @@ _"A man who plans ahead—I like that. It shows confidence."_""",
             output += f"    {opt['pinyin']}\n"
             output += f"    {opt['english']}\n"
             output += f"    _(❤️ +{opt['points']})_\n\n"
+        output += "\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
         return output
