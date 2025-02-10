@@ -32,65 +32,31 @@ except Exception as e:
     st.error(f"❌ API Error: {str(e)}")
     st.stop()
 
-def text_to_speech(text, user_name=None):
-    """Convert text to speech using OpenAI's TTS - Chinese only"""
+def text_to_speech(text):
+    """Convert Chinese text to speech"""
     try:
-        lines = text.split('\n')
-        chinese_sentences = []
-        
-        for line in lines:
-            # Skip empty lines, translations, or section markers
-            if not line.strip() or any(marker in line for marker in ['Word-by-Word', 'Suggested', '---', 'Try', '🎯', 'Word Explanation:']):
-                continue
-                
-            # Skip lines that are translations (in parentheses)
-            if line.strip().startswith('('):
-                continue
-                
-            # Get Chinese text before any translation
-            chinese_part = line.split('(')[0].strip()
-            
-            # If line contains Chinese characters and isn't a scene description
-            if any('\u4e00' <= c <= '\u9fff' for c in chinese_part) and not (chinese_part.startswith('*') and chinese_part.endswith('*')):
-                chinese_sentences.append(chinese_part)
-        
-        # Combine all Chinese sentences
-        chinese_text = ' '.join(chinese_sentences)
-        
-        # Replace [name] with actual name if present
-        if user_name and chinese_text:
-            chinese_text = chinese_text.replace("[name]", user_name)
-        
-        # Skip if no Chinese text to process
-        if not chinese_text:
-            return ""
-        
         response = client.audio.speech.create(
             model="tts-1",
             voice="nova",
-            input=chinese_text
+            input=text
         )
         
-        # Save the audio to a temporary file
         audio_file_path = "temp_audio.mp3"
         response.stream_to_file(audio_file_path)
         
-        # Read the audio file and create a base64 string
         with open(audio_file_path, "rb") as audio_file:
             audio_bytes = audio_file.read()
         audio_base64 = base64.b64encode(audio_bytes).decode()
         
-        # Remove temporary file
         os.remove(audio_file_path)
         
-        # Create HTML audio element with subtle styling
         audio_html = f"""
             <div style="margin: 0;">
                 <audio controls style="height: 30px; width: 180px;">
                     <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
                 </audio>
             </div>
-            """
+        """
         return audio_html
     except Exception as e:
         return f"Error generating audio: {str(e)}"
@@ -459,15 +425,10 @@ if "chatbot" not in st.session_state:
 
 # Display chat history
 for message in st.session_state.chat_history:
-    avatar = TUTOR_AVATAR if message["role"] == "assistant" else USER_AVATAR
-    with st.chat_message(message["role"], avatar=avatar):
-        # Display video only for the first message
-        if message["role"] == "assistant" and "video_html" in message:
-            components.html(message["video_html"], height=300)
+    with st.chat_message(message["role"], avatar=TUTOR_AVATAR if message["role"] == "assistant" else USER_AVATAR):
         st.markdown(message["content"])
-        # Display audio for assistant messages
-        if message["role"] == "assistant" and "id" in message and message["id"] in st.session_state.audio_elements:
-            st.markdown(st.session_state.audio_elements[message["id"]], unsafe_allow_html=True)
+        if "audio_html" in message:
+            st.markdown(message["audio_html"], unsafe_allow_html=True)
 
 # Add function to show typing indicator
 def show_typing_indicator():
@@ -562,6 +523,11 @@ def handle_chat_input(prompt):
                 with st.chat_message("assistant", avatar=TUTOR_AVATAR):
                     st.markdown(f"This is how you pronounce: {chinese_text}, babe")
                     st.markdown(audio_html, unsafe_allow_html=True)
+                    st.session_state.chat_history.append({
+                        "role": "assistant",
+                        "content": f"This is how you pronounce: {chinese_text}, babe",
+                        "audio_html": audio_html
+                    })
         except (ValueError, IndexError):
             with st.chat_message("assistant", avatar=TUTOR_AVATAR):
                 st.markdown("Sorry babe, I don't quite understand you.")
