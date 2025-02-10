@@ -279,7 +279,7 @@ Key behaviors:
 1. Always present exactly three response options in Chinese, Pinyin, and English
 2. Only accept responses 1, 2, or 3
 3. Reject invalid responses with "Sorry babe, I don't quite understand you."
-4. Track and display the Babe Happy Meter score after each interaction
+4. Track and display the Babe Happiness Meter score after each interaction
 5. Support audio pronunciation with "play audio X" command
 
 Current scene and points should be tracked and responses should match the script exactly.
@@ -289,7 +289,7 @@ Current scene and points should be tracked and responses should match the script
 if "chat_state" not in st.session_state:
     st.session_state.chat_state = {
         "current_scene": 1,
-        "babe_points": 50,  # Initial Babe Happy Meter score
+        "babe_points": 50,  # Initial Babe Happiness Meter score
         "last_options": None  # Store last presented options for audio playback
     }
 
@@ -643,7 +643,7 @@ def handle_chat_input(prompt):
             typing_placeholder.empty()
             st.session_state.chat_history.append({
                 "role": "assistant",
-                "content": f"{response['text']}\n\n❤️ Babe Happy Meter: {response['points']}/100 (+{points} points)",
+                "content": f"{response['text']}\n\n❤️ Babe Happiness Meter: {response['points']}/100 (+{points} points)",
                 "audio_html": audio_html
             })
             
@@ -752,9 +752,9 @@ _"A man who plans ahead—I like that. It shows confidence."_""",
     return None
 
 def update_babe_meter(points):
-    """Update and display the Babe Happy Meter"""
+    """Update and display the Babe Happiness Meter"""
     st.session_state.chat_state["babe_points"] += points
-    return f"\n❤️ Babe Happy Meter: {st.session_state.chat_state['babe_points']}/100"
+    return f"\n❤️ Babe Happiness Meter: {st.session_state.chat_state['babe_points']}/100"
 
 def handle_audio_request(text):
     """Handle 'play audio X' requests"""
