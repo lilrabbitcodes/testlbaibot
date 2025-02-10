@@ -590,7 +590,6 @@ def handle_chat_input(prompt):
             
             if current_scene and 1 <= option_num <= 3:
                 option = current_scene.options[option_num-1]
-                # Clean the Chinese text properly
                 chinese = option["chinese"]
                 for char in ["「", "」", "**"]:
                     chinese = chinese.replace(char, "")
@@ -634,16 +633,17 @@ def handle_chat_input(prompt):
         
         if choice and 1 <= choice <= 3:
             response = st.session_state.chatbot.handle_choice(choice)
+            points = current_scene.options[choice-1]["points"]
             
             # Extract Chinese text from response for audio
             chinese_text = response["text"].split("**「")[1].split("」**")[0]
             audio_html = text_to_speech(chinese_text)
             
-            # Remove typing indicator and add bot's response
+            # Remove typing indicator and add bot's response with points
             typing_placeholder.empty()
             st.session_state.chat_history.append({
                 "role": "assistant",
-                "content": response["text"],
+                "content": f"{response['text']}\n\n❤️ Babe Happy Meter: {response['points']}/100 (+{points} points)",
                 "audio_html": audio_html
             })
             
