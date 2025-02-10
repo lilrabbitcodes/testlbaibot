@@ -380,6 +380,38 @@ _"Let's start with a drink. Do you usually go for red, white, or something a lit
                             }
                         ]
                     }
+                },
+                {
+                    "chinese": "「希望这里的美食能配得上这氛围。」",
+                    "pinyin": "(Xīwàng zhèlǐ de měishí néng pèi dé shàng zhè fēnwèi.)",
+                    "english": "I hope the food lives up to the atmosphere.",
+                    "points": 9,
+                    "note": "(❤️ +9, Casual but Engaging, Uses 'Atmosphere')",
+                    "lingobabe_reply": {
+                        "text": """_(Glances at the menu, intrigued.)_
+
+**「我也这么觉得。但完美的晚餐，不仅仅是食物而已。」**
+
+(Wǒ yě zhème juéde. Dàn wánměi de wǎncān, bù jǐnjǐn shì shíwù éryǐ.)
+
+_"I have a feeling it will. But a perfect dinner is more than just the food."_"""
+                    }
+                },
+                {
+                    "chinese": "「说实话？我只是跟着网上的好评来的。」",
+                    "pinyin": "(Shuō shíhuà? Wǒ zhǐshì gēnzhe wǎngshàng de hǎopíng lái de.)",
+                    "english": "Honestly? I just followed the best reviews online.",
+                    "points": 6,
+                    "note": "(❤️ +6, Playful but Less Effort, Uses 'Reviews')",
+                    "lingobabe_reply": {
+                        "text": """_(Raises an eyebrow, smirking.)_
+
+**「很务实的做法。那么，你是那种相信评论的人，还是喜欢自己去发现新地方？」**
+
+(Hěn wùshí de zuòfǎ. Nàme, nǐ shì nà zhǒng xiāngxìn pínglùn de rén, háishì xǐhuan zìjǐ qù fāxiàn xīn dìfāng?)
+
+_"Practical. So, do you always trust reviews, or do you like discovering places yourself?"_"""
+                    }
                 }
             ]
         )
@@ -641,32 +673,19 @@ if "chatbot" not in st.session_state:
     scene = st.session_state.chatbot.get_current_scene()
     
     if scene:
-        # Format initial message with scene text
-        initial_message = (
-            f"""_(Seated at a beautifully set table, she gracefully looks up as you arrive.)_
-
-**「刚刚好，我正欣赏着这里的氛围——看来你的品味不错。」**
-
-(Gānggāng hǎo, wǒ zhèng xīnshǎng zhe zhèlǐ de fēnwèi——kànlái nǐ de pǐnwèi búcuò.)
-
-_"Perfect timing. I was just admiring the ambiance—seems like you have good taste."_"""
-        )
+        # Format initial message with scene text and all options
+        initial_message = scene.initial_text
         
         # Generate audio for first message
-        first_chinese = "刚刚好，我正欣赏着这里的氛围——看来你的品味不错。"
+        first_chinese = scene.initial_text.split("**")[1].split("」**")[0]
         first_audio = text_to_speech(first_chinese)
         
-        # Add options with new formatting
+        # Add all options
         options_message = "\n\n🟢 Choose your response to your babe:\n\n"
-        options_message += """1️⃣ 「我特意订了座位，今晚当然要享受最好的。」 (Wǒ tèyì dìngle zuòwèi, jīnwǎn dāngrán yào xiǎngshòu zuì hǎo de.) "I took the liberty of making a reservation. Only the best for tonight."
-
-2️⃣ 「希望这里的美食能配得上这氛围。」 (Xīwàng zhèlǐ de měishí néng pèi dé shàng zhè fēnwèi.) "I hope the food lives up to the atmosphere."
-
-3️⃣ 「说实话？我只是跟着网上的好评来的。」 (Shuō shíhuà? Wǒ zhǐshì gēnzhe wǎngshàng de hǎopíng lái de.) "Honestly? I just followed the best reviews online."
-
--"""
+        for i, opt in enumerate(scene.options, 1):
+            options_message += f"{i}️⃣ {opt['chinese']} {opt['pinyin']} {opt['english']} {opt['note']}\n\n"
         
-        options_message += "\n\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
+        options_message += "🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
         
         # Add to chat history with audio
         st.session_state.chat_history.append({
