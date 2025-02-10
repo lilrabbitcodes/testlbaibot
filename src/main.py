@@ -342,25 +342,7 @@ _"Perfect timing. I was just admiring the ambiance—seems like you have good ta
                 }
             ],
             responses={
-                1: {
-                    "text": """_(Smiles approvingly, adjusting her napkin.)_
-
-**「懂得提前计划的男人——我喜欢。这很有自信。」**
-
-(Dǒngdé tíqián jìhuà de nánrén——wǒ xǐhuan. Zhè hěn yǒu zìxìn.)
-
-_"A man who plans ahead—I like that. It shows confidence."_""",
-                    "next_options": [
-                        {
-                            "chinese": "「美好的夜晚，从美好的陪伴开始。」",
-                            "pinyin": "(Měihǎo de yèwǎn, cóng měihǎo de péibàn kāishǐ.)",
-                            "english": "A great evening starts with great company.",
-                            "points": 12
-                        },
-                        # Add other options for this response...
-                    ]
-                },
-                2: {
+                2: {  # Response for option 2
                     "text": """_(Glances at the menu, intrigued.)_
 
 **「我也这么觉得。但完美的晚餐，不仅仅是食物而已。」**
@@ -369,19 +351,24 @@ _"A man who plans ahead—I like that. It shows confidence."_""",
 
 _"I have a feeling it will. But a perfect dinner is more than just the food."_""",
                     "next_options": [
-                        # Add options for this response...
-                    ]
-                },
-                3: {
-                    "text": """_(Raises an eyebrow, smirking.)_
-
-**「很务实的做法。那么，你是那种相信评论的人，还是喜欢自己去发现新地方？」**
-
-(Hěn wùshí de zuòfǎ. Nàme, nǐ shì nà zhǒng xiāngxìn pínglùn de rén, háishì xǐhuan zìjǐ qù fāxiàn xīn dìfāng?)
-
-_"Practical. So, do you always trust reviews, or do you like discovering places yourself?"_""",
-                    "next_options": [
-                        # Add options for this response...
+                        {
+                            "chinese": "「确实如此。美好的氛围、可口的食物，再加上一位美丽的约会对象，才能令人难忘。」",
+                            "pinyin": "(Quèshí rúcǐ. Měihǎo de fēnwèi, kěkǒu de shíwù, zài jiā shàng yī wèi měilì de yuēhuì duìxiàng, cáinéng lìng rén nánwàng.)",
+                            "english": "True. A great ambiance, good food, and a beautiful date make it unforgettable.",
+                            "points": 11
+                        },
+                        {
+                            "chinese": "「我认为完美的体验在于平衡——环境、味道、还有陪伴。」",
+                            "pinyin": "(Wǒ rènwéi wánměi de tǐyàn zàiyú pínghéng——huánjìng, wèidào, háiyǒu péibàn.)",
+                            "english": "I believe every experience is about balance—the setting, the flavors, the company.",
+                            "points": 10
+                        },
+                        {
+                            "chinese": "「我只是为了吃好吃的来的。只要好吃，我就满足了。」",
+                            "pinyin": "(Wǒ zhǐshì wèile chī hǎochī de lái de. Zhǐyào hǎochī, wǒ jiù mǎnzú le.)",
+                            "english": "I'm just here for the food. If it's good, I'll be happy.",
+                            "points": 7
+                        }
                     ]
                 }
             }
@@ -542,7 +529,7 @@ def format_message_content(content):
 
 def handle_chat_input(prompt):
     """Handle chat input and return appropriate responses"""
-    # Add user message to chat history
+    # Add user message to history
     st.session_state.chat_history.append({
         "role": "user",
         "content": prompt
@@ -572,8 +559,20 @@ def handle_chat_input(prompt):
     
     # Handle normal responses
     try:
-        choice = int(prompt)
-        if 1 <= choice <= 3:
+        # Try to get choice number from prompt
+        choice = None
+        if prompt.isdigit():
+            choice = int(prompt)
+        else:
+            # Check if prompt matches any Chinese option
+            current_scene = st.session_state.chatbot.get_current_scene()
+            if current_scene:
+                for i, opt in enumerate(current_scene.options, 1):
+                    if opt["chinese"].replace("**", "").replace("「", "").replace("」", "") in prompt:
+                        choice = i
+                        break
+        
+        if choice and 1 <= choice <= 3:
             response = st.session_state.chatbot.handle_choice(choice)
             
             # Add bot's response to chat history
@@ -585,28 +584,23 @@ def handle_chat_input(prompt):
             # If there's a next scene, add it to chat history
             if "next_options" in response and response["next_options"]:
                 next_scene = response["next_options"]
-                scene_text = next_scene["text"]
-                
-                # Format options according to thechat.md structure
                 options_text = "\n\n🟢 Choose your response to your babe:\n\n"
-                for i, opt in enumerate(next_scene["options"], 1):
+                for i, opt in enumerate(next_scene, 1):
                     chinese = opt['chinese'].replace('**', '')
-                    options_text += (
-                        f"{i}️⃣ {chinese} {opt['pinyin']} {opt['english'].replace('_', '')}\n\n"
-                    )
+                    options_text += f"{i}️⃣ {chinese} {opt['pinyin']} {opt['english']}\n\n"
                 options_text += "-\n\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
                 
-                # Add scene and options to chat history
                 st.session_state.chat_history.append({
                     "role": "assistant",
-                    "content": f"{scene_text}{options_text}"
+                    "content": f"{response['text']}{options_text}"
                 })
         else:
             st.session_state.chat_history.append({
                 "role": "assistant",
                 "content": "Sorry babe, I don't quite understand you."
             })
-    except ValueError:
+    except Exception as e:
+        print(f"Error handling response: {e}")
         st.session_state.chat_history.append({
             "role": "assistant",
             "content": "Sorry babe, I don't quite understand you."
