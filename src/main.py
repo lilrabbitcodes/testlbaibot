@@ -129,31 +129,36 @@ st.markdown("""
         /* Typing indicator container */
         .typing-indicator {
             display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 8px 12px;
-            background: #f0f2f6;
-            border-radius: 15px;
-            width: fit-content;
-            margin: 0;
+            gap: 5px;
+            padding: 5px 10px;
         }
         
         /* Typing dots */
         .typing-dot {
-            width: 6px;
-            height: 6px;
-            background: #666;
+            width: 8px;
+            height: 8px;
+            background-color: #888888;
             border-radius: 50%;
-            animation: typing-dot 1.4s infinite;
-            opacity: 0.3;
+            animation: typing-bounce 1.3s linear infinite;
         }
         
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.15s;
+        }
         
-        @keyframes typing-dot {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.2); }
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+        
+        @keyframes typing-bounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.3;
+            }
+            30% {
+                transform: translateY(-4px);
+                opacity: 1;
+            }
         }
         
         /* Hide Streamlit elements */
@@ -565,10 +570,16 @@ def handle_chat_input(prompt):
         "content": prompt
     })
     
-    # Show typing indicator
+    # Show animated typing indicator
     with st.chat_message("assistant", avatar=TUTOR_AVATAR):
         typing_placeholder = st.empty()
-        typing_placeholder.markdown("typing...")
+        typing_placeholder.markdown("""
+            <div class="typing-indicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        """, unsafe_allow_html=True)
         time.sleep(1)  # Simulate typing delay
     
     # Handle audio playback requests
