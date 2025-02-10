@@ -343,14 +343,13 @@ class LingobabeChat:
 
 _"Perfect timing. I was just admiring the ambiance—seems like you have good taste."_""",
             options=[
-                # First level options (reply 1)
                 {
                     "chinese": "「我特意订了座位，今晚当然要享受最好的。」",
                     "pinyin": "(Wǒ tèyì dìngle zuòwèi, jīnwǎn dāngrán yào xiǎngshòu zuì hǎo de.)",
                     "english": "I took the liberty of making a reservation. Only the best for tonight.",
                     "points": 12,
                     "note": "(❤️ +12, Confident & Thoughtful, Uses 'Reservation')",
-                    "lingobabe_reply": {  # Subreply
+                    "lingobabe_reply": {
                         "text": """_(Smiles approvingly, adjusting her napkin.)_
 
 **「懂得提前计划的男人——我喜欢。这很有自信。」**
@@ -358,14 +357,14 @@ _"Perfect timing. I was just admiring the ambiance—seems like you have good ta
 (Dǒngdé tíqián jìhuà de nánrén——wǒ xǐhuan. Zhè hěn yǒu zìxìn.)
 
 _"A man who plans ahead—I like that. It shows confidence."_""",
-                        "next_options": [  # Second level options (reply 2)
+                        "next_options": [
                             {
                                 "chinese": "「美好的夜晚，从美好的陪伴开始。」",
                                 "pinyin": "(Měihǎo de yèwǎn, cóng měihǎo de péibàn kāishǐ.)",
                                 "english": "A great evening starts with great company.",
                                 "points": 12,
                                 "note": "(❤️ +12, Charming & Smooth, Uses 'Company')",
-                                "lingobabe_reply": {  # Subsubreply
+                                "lingobabe_reply": {
                                     "text": """_(Softly smirks, tilting her head.)_
 
 **「听起来很迷人，但我想看看你能否真的做到。」**
@@ -384,71 +383,42 @@ _"Let's start with a drink. Do you usually go for red, white, or something a lit
                             }
                         ]
                     }
-                }
-            ],
-            responses={
-                1: {
-                    "text": """_(Smiles approvingly, adjusting her napkin.)_
-
-**「懂得提前计划的男人——我喜欢。这很有自信。」**
-
-(Dǒngdé tíqián jìhuà de nánrén——wǒ xǐhuan. Zhè hěn yǒu zìxìn.)
-
-_"A man who plans ahead—I like that. It shows confidence."_""",
-                    "next_options": [
-                        {
-                            "chinese": "「美好的夜晚，从美好的陪伴开始。」",
-                            "pinyin": "(Měihǎo de yèwǎn, cóng měihǎo de péibàn kāishǐ.)",
-                            "english": "A great evening starts with great company.",
-                            "points": 12
-                        },
-                        {
-                            "chinese": "「细节很重要，尤其是这样的夜晚。」",
-                            "pinyin": "(Xìjié hěn zhòngyào, yóuqí shì zhèyàng de yèwǎn.)",
-                            "english": "Details matter, especially when the evening is important.",
-                            "points": 11
-                        },
-                        {
-                            "chinese": "「一点小小的努力，总是值得的。」",
-                            "pinyin": "(Yīdiǎn xiǎoxiǎo de nǔlì, zǒng shì zhídé de.)",
-                            "english": "Well, a little effort goes a long way.",
-                            "points": 10
-                        }
-                    ]
                 },
-                2: {
-                    "text": """_(Glances at the menu, intrigued.)_
+                {
+                    "chinese": "「希望这里的美食能配得上这氛围。」",
+                    "pinyin": "(Xīwàng zhèlǐ de měishí néng pèi dé shàng zhè fēnwèi.)",
+                    "english": "I hope the food lives up to the atmosphere.",
+                    "points": 9,
+                    "note": "(❤️ +9, Casual but Engaging, Uses 'Atmosphere')",
+                    "lingobabe_reply": {
+                        "text": """_(Glances at the menu, intrigued.)_
 
 **「我也这么觉得。但完美的晚餐，不仅仅是食物而已。」**
 
 (Wǒ yě zhème juéde. Dàn wánměi de wǎncān, bù jǐnjǐn shì shíwù éryǐ.)
 
-_"I have a feeling it will. But a perfect dinner is more than just the food."_""",
-                    "next_options": [
-                        {
-                            "chinese": "「确实如此。美好的氛围、可口的食物，再加上一位美丽的约会对象，才能令人难忘。」",
-                            "pinyin": "(Quèshí rúcǐ. Měihǎo de fēnwèi, kěkǒu de shíwù, zài jiā shàng yī wèi měilì de yuēhuì duìxiàng, cáinéng lìng rén nánwàng.)",
-                            "english": "True. A great ambiance, good food, and a beautiful date make it unforgettable.",
-                            "points": 11
-                        },
-                        {
-                            "chinese": "「我认为完美的体验在于平衡——环境、味道、还有陪伴。」",
-                            "pinyin": "(Wǒ rènwéi wánměi de tǐyàn zàiyú pínghéng——huánjìng, wèidào, háiyǒu péibàn.)",
-                            "english": "I believe every experience is about balance—the setting, the flavors, the company.",
-                            "points": 10
-                        },
-                        {
-                            "chinese": "「我只是为了吃好吃的来的。只要好吃，我就满足了。」",
-                            "pinyin": "(Wǒ zhǐshì wèile chī hǎochī de lái de. Zhǐyào hǎochī, wǒ jiù mǎnzú le.)",
-                            "english": "I'm just here for the food. If it's good, I'll be happy.",
-                            "points": 7
-                        }
-                    ]
+_"I have a feeling it will. But a perfect dinner is more than just the food."_"""
+                    }
+                },
+                {
+                    "chinese": "「说实话？我只是跟着网上的好评来的。」",
+                    "pinyin": "(Shuō shíhuà? Wǒ zhǐshì gēnzhe wǎngshàng de hǎopíng lái de.)",
+                    "english": "Honestly? I just followed the best reviews online.",
+                    "points": 6,
+                    "note": "(❤️ +6, Playful but Less Effort, Uses 'Reviews')",
+                    "lingobabe_reply": {
+                        "text": """_(Raises an eyebrow, smirking.)_
+
+**「很务实的做法。那么，你是那种相信评论的人，还是喜欢自己去发现新地方？」**
+
+(Hěn wùshí de zuòfǎ. Nàme, nǐ shì nà zhǒng xiāngxìn pínglùn de rén, háishì xǐhuan zìjǐ qù fāxiàn xīn dìfāng?)
+
+_"Practical. So, do you always trust reviews, or do you like discovering places yourself?"_"""
+                    }
                 }
-            }
+            ]
         )
         
-        # Add Scene 2, 3, 4, and 5...
         return scenes
 
     def get_current_scene(self):
