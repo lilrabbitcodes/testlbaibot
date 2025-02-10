@@ -337,37 +337,52 @@ class LingobabeChat:
             return None
 
     def parse_scene(self, scene_content):
-        """Parse scene content into dialogue structure"""
+        """Parse scene content into structured format"""
         try:
             # Split into main content and options
             parts = scene_content.split("🟢 **User MUST choose one response:**")
             if len(parts) < 2:
                 return None
 
-            # Get main scene text (remove scene title and Lingobabe prefix)
-            main_text = parts[0].split("Lingobabe:", 1)[1].strip() if "Lingobabe:" in parts[0] else parts[0].strip()
+            scene_text = parts[0].split("Lingobabe:", 1)[1].strip()
+            options_text = parts[1]
             
             # Parse options and responses
             options = []
             responses = {}
             
             # Split into option blocks
-            option_blocks = parts[1].split("### **If User Selects")
+            option_blocks = options_text.split("### **If User Selects")
             
             # Parse each option block
             for i, block in enumerate(option_blocks[1:], 1):
-                # Extract option details
-                option = self.extract_option(block)
-                if option:
-                    options.append(option)
+                # Get option details
+                option_lines = block.split("\n")
+                chinese = next((l for l in option_lines if "「" in l), "")
+                pinyin = next((l for l in option_lines if "(" in l and ")" in l), "")
+                english = next((l for l in option_lines if "_" in l), "")
+                points = next((int(l.split("+")[1].split(",")[0]) for l in option_lines if "❤️" in l), 0)
                 
-                # Extract response
-                response = self.extract_response(block)
-                if response:
-                    responses[i] = response
+                options.append({
+                    "chinese": chinese,
+                    "pinyin": pinyin,
+                    "english": english,
+                    "points": points
+                })
+                
+                # Get response
+                response_start = block.find("**Lingobabe:**")
+                if response_start != -1:
+                    response_text = block[response_start:].split("\n\n")[1].strip()
+                    chinese = next((l for l in response_text.split('\n') if '「' in l), '')
+                    responses[i] = {
+                        "text": response_text,
+                        "chinese": chinese,
+                        "next_options": self.extract_next_options(block)
+                    }
 
             return {
-                "text": main_text,
+                "text": scene_text,
                 "options": options,
                 "responses": responses
             }
@@ -375,39 +390,33 @@ class LingobabeChat:
             print(f"Error parsing scene: {e}")
             return None
 
-    def extract_option(self, block):
-        """Extract option details from a block"""
+    def extract_next_options(self, block):
+        """Extract next set of options after response"""
         try:
-            lines = block.split("\n")
-            chinese = next((l for l in lines if "「" in l), "")
-            pinyin = next((l for l in lines if "(" in l and ")" in l), "")
-            english = next((l for l in lines if "_" in l), "")
-            points = int(next((l.split("+")[1].split(",")[0] for l in lines if "❤️" in l), "0"))
-            
-            return {
-                "chinese": chinese,
-                "pinyin": pinyin,
-                "english": english,
-                "points": points
-            }
-        except Exception:
-            return None
-
-    def extract_response(self, block):
-        """Extract response details from a block"""
-        try:
-            response_start = block.find("**Lingobabe:**")
-            if response_start != -1:
-                response_parts = block[response_start:].split("\n\n")
-                response_text = response_parts[1].strip() if len(response_parts) > 1 else ""
-                chinese = next((l for l in response_text.split('\n') if '「' in l), '')
+            options_start = block.find("🟢 **User MUST choose one response:**")
+            if options_start != -1:
+                options_text = block[options_start:]
+                options = []
                 
-                return {
-                    "text": response_text,
-                    "chinese": chinese
-                }
-        except Exception:
-            return None
+                for line in options_text.split("\n"):
+                    if "「" in line and "」" in line:
+                        option_num = len(options) + 1
+                        chinese = line.strip()
+                        pinyin = next((l.strip() for l in options_text.split("\n") if "(" in l), "")
+                        english = next((l.strip() for l in options_text.split("\n") if "_" in l), "")
+                        points = next((int(l.split("+")[1].split(",")[0]) for l in options_text.split("\n") if "❤️" in l), 0)
+                        
+                        options.append({
+                            "chinese": chinese,
+                            "pinyin": pinyin,
+                            "english": english,
+                            "points": points
+                        })
+                
+                return options
+        except Exception as e:
+            print(f"Error extracting next options: {e}")
+        return None
 
     def handle_choice(self, choice):
         """Process user choice and return response"""
