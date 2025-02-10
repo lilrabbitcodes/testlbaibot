@@ -571,7 +571,7 @@ def handle_chat_input(prompt):
             pass
     
     # Handle normal responses
-    response = st.session_state.chatbot.get_response(prompt)
+    response = st.session_state.chatbot.handle_choice(prompt)
     with st.chat_message("assistant", avatar=TUTOR_AVATAR):
         st.markdown(response["text"])
         st.markdown(f"\n❤️ Babe Happy Meter: {response['points']}/100")
@@ -683,103 +683,86 @@ class LingobabeChat:
     def __init__(self):
         self.points = 50  # Starting points
         self.current_scene = 1
-        self.scenes = self.load_scenes()
+        self.chat_script = self.load_chat_script()
 
-    def load_scenes(self):
-        """Load all scenes from thechat.md"""
+    def load_chat_script(self):
+        """Load and parse the chat script from thechat.md"""
         with open("src/assets/thechat.md", "r", encoding="utf-8") as f:
-            content = f.read()
-
-        # Split content into scenes
-        scene_sections = content.split("## **")
-        scenes = {}
-        
-        for section in scene_sections:
-            if not section.strip():
-                continue
-                
-            # Parse scene number
-            scene_num = int(section.split("Scene")[1].split(":")[0].strip())
-            
-            # Parse scene text (everything before options)
-            scene_parts = section.split("🟢 **User MUST choose one response:**")
-            scene_text = scene_parts[0].strip()
-            
-            # Parse options and responses
-            options = []
-            responses = {}
-            
-            if len(scene_parts) > 1:
-                options_text = scene_parts[1]
-                option_blocks = options_text.split("\n\n")
-                
-                for i, block in enumerate(option_blocks, 1):
-                    if "「" not in block:
-                        continue
-                        
-                    lines = block.strip().split("\n")
-                    chinese = lines[0].strip()
-                    pinyin = lines[1].strip() if len(lines) > 1 else ""
-                    english = lines[2].strip() if len(lines) > 2 else ""
-                    points = int(lines[3].split("+")[1].split(",")[0]) if len(lines) > 3 else 0
-                    
-                    options.append({
-                        "chinese": chinese,
-                        "pinyin": pinyin,
-                        "english": english,
-                        "points": points
-                    })
-                    
-                    # Find corresponding response
-                    response_start = section.find(f"### **If User Selects {i}️⃣:")
-                    if response_start != -1:
-                        response_text = section[response_start:].split("\n\n")[1].strip()
-                        responses[i] = {
-                            "text": response_text,
-                            "points": points,
-                            "next_scene": scene_num + 1 if scene_num < 5 else None
-                        }
-            
-            scenes[scene_num] = ChatScene(scene_text, options, responses)
-        
-        return scenes
+            return f.read()
 
     def get_current_scene(self):
-        """Get current scene content"""
-        return self.scenes[self.current_scene]
+        """Get current scene content from chat script"""
+        scenes = self.chat_script.split("## **")
+        for scene in scenes:
+            if f"Scene {self.current_scene}:" in scene:
+                return self.parse_scene(scene)
+        return None
 
-    def handle_response(self, choice):
-        """Process user response and return appropriate content"""
+    def parse_scene(self, scene_content):
+        """Parse scene content into structured format"""
+        # Split into main scene text and options
+        parts = scene_content.split("🟢 **User MUST choose one response:**")
+        if len(parts) < 2:
+            return None
+
+        scene_text = parts[0].strip()
+        options_text = parts[1]
+
+        # Parse options
+        options = []
+        responses = {}
+        
+        # Split options into blocks
+        option_blocks = options_text.split("\n\n")
+        current_option = None
+        
+        for block in option_blocks:
+            if "「" in block:  # This is an option
+                lines = block.strip().split("\n")
+                if len(lines) >= 3:
+                    option_num = len(options) + 1
+                    option = {
+                        "chinese": lines[0],
+                        "pinyin": lines[1],
+                        "english": lines[2],
+                        "points": int(lines[3].split("+")[1].split(",")[0]) if len(lines) > 3 else 0
+                    }
+                    options.append(option)
+                    current_option = option_num
+
+            elif "### **If User Selects" in block:  # This is a response
+                if current_option:
+                    response_text = block.split("\n\n")[1].strip() if len(block.split("\n\n")) > 1 else ""
+                    responses[current_option] = response_text
+
+        return {
+            "text": scene_text,
+            "options": options,
+            "responses": responses
+        }
+
+    def handle_choice(self, choice):
+        """Handle user's choice and return appropriate response"""
         try:
             choice = int(choice)
-            scene = self.scenes[self.current_scene]
+            current_scene = self.get_current_scene()
             
-            if 1 <= choice <= 3 and choice in scene.responses:
-                response = scene.responses[choice]
-                self.points += response["points"]
-                next_scene = response["next_scene"]
+            if current_scene and 1 <= choice <= 3:
+                option = current_scene["options"][choice-1]
+                response = current_scene["responses"].get(choice)
                 
-                if next_scene:
-                    self.current_scene = next_scene
+                if response:
+                    self.points += option["points"]
+                    self.current_scene += 1 if self.current_scene < 5 else 0
                     return {
-                        "text": response["text"],
+                        "text": response,
                         "points": self.points,
-                        "next_scene": self.scenes[next_scene]
+                        "next_scene": self.get_current_scene() if self.current_scene < 6 else None
                     }
-                else:
-                    return {
-                        "text": response["text"],
-                        "points": self.points,
-                        "next_scene": None
-                    }
-        except ValueError:
-            pass
             
-        return {
-            "text": "Sorry babe, I don't quite understand you.",
-            "points": self.points,
-            "next_scene": None
-        }
+            return {"text": "Sorry babe, I don't quite understand you.", "points": self.points}
+        except (ValueError, IndexError):
+            return {"text": "Sorry babe, I don't quite understand you.", "points": self.points}
 
     def format_scene(self, scene):
         """Format scene content for display"""
