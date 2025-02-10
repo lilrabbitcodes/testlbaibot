@@ -324,6 +324,18 @@ class LingobabeChat:
         with open("src/assets/thechat.md", "r", encoding="utf-8") as f:
             return f.read()
 
+    def get_scene(self):
+        """Get current scene content"""
+        try:
+            scenes = self.chat_script.split("## **")
+            for scene in scenes:
+                if f"Scene {self.current_scene}:" in scene:
+                    return self.parse_scene(scene)
+            return None
+        except Exception as e:
+            print(f"Error getting scene: {e}")
+            return None
+
     def parse_scene(self, scene_content):
         """Parse scene content into dialogue structure"""
         try:
