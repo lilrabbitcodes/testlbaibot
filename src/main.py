@@ -586,17 +586,21 @@ def format_message_content(content):
 
 def handle_chat_input(prompt):
     """Handle chat input and return appropriate responses"""
-    # Add user message to chat history first
-    st.session_state.chat_history.append({"role": "user", "content": prompt})
+    # Add user message to chat history
+    with st.chat_message("user", avatar=USER_AVATAR):
+        st.markdown(prompt)
     
     # Handle audio playback requests
     if prompt.lower().startswith("play audio"):
         try:
             option_num = int(prompt.split()[-1])
             current_scene = st.session_state.chatbot.get_scene()
+            
             if current_scene and 1 <= option_num <= 3:
                 option = current_scene["options"][option_num-1]
                 chinese = option["chinese"].replace("**", "").replace("「", "").replace("」", "")
+                
+                # Generate audio
                 audio_html = text_to_speech(chinese)
                 
                 if audio_html:
@@ -606,65 +610,25 @@ def handle_chat_input(prompt):
                         st.markdown(option["pinyin"])
                         st.markdown(option["english"])
                         st.markdown(audio_html, unsafe_allow_html=True)
-                        
+                    
+                    # Add to chat history
                     st.session_state.chat_history.append({
                         "role": "assistant",
                         "content": f"This is how you pronounce, babe:\n{chinese}\n{option['pinyin']}\n{option['english']}",
                         "audio_html": audio_html
                     })
+                    return
+                
             else:
                 with st.chat_message("assistant", avatar=TUTOR_AVATAR):
-                    st.markdown("Sorry babe, I don't quite understand you.")
+                    st.markdown("Sorry babe, please choose a valid option number (1-3).")
+                return
+                
         except (ValueError, IndexError) as e:
             print(f"Error handling audio request: {e}")
             with st.chat_message("assistant", avatar=TUTOR_AVATAR):
-                st.markdown("Sorry babe, I don't quite understand you.")
-        return
-
-    # Handle numeric responses (1, 2, 3)
-    try:
-        choice = int(prompt)
-        if 1 <= choice <= 3:
-            response = st.session_state.chatbot.handle_choice(choice)
-            with st.chat_message("assistant", avatar=TUTOR_AVATAR):
-                # Display response text
-                st.markdown(response["text"])
-                st.markdown(f"\n❤️ Babe Happy Meter: {response['points']}/100")
-                
-                # Play audio for bot's response if available
-                if "chinese" in response and "audio_html" in response:
-                    st.markdown("\n🔊 Listen to my response:")
-                    st.markdown(response["audio_html"], unsafe_allow_html=True)
-                
-                # Show next scene if available
-                if response.get("next_scene"):
-                    next_scene = response["next_scene"]
-                    st.markdown(next_scene["text"])
-                    st.markdown("\n\n🟢 **Choose your response to your babe:**\n\n")
-                    
-                    for i, opt in enumerate(next_scene["options"], 1):
-                        st.markdown(
-                            f"{i}️⃣ {opt['chinese']} _(❤️ +{opt['points']})_\n"
-                            f"{opt['pinyin']}\n"
-                            f"{opt['english']}\n\n"
-                        )
-                    
-                    st.markdown("\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!")
-                    
-                    # Add to chat history
-                    st.session_state.chat_history.append({
-                        "role": "assistant",
-                        "content": f"{next_scene['text']}\n\n🟢 **Choose your response:**\n\n" + "\n\n".join(
-                            f"{i}️⃣ {opt['chinese']} _(❤️ +{opt['points']})_\n{opt['pinyin']}\n{opt['english']}"
-                            for i, opt in enumerate(next_scene["options"], 1)
-                        )
-                    })
-        else:
-            with st.chat_message("assistant", avatar=TUTOR_AVATAR):
-                st.markdown("Sorry babe, I don't quite understand you.")
-    except ValueError:
-        with st.chat_message("assistant", avatar=TUTOR_AVATAR):
-            st.markdown("Sorry babe, I don't quite understand you.")
+                st.markdown("Sorry babe, please choose a valid option number (1-3).")
+            return
 
 # Update the chat input handling section
 if prompt := st.chat_input("Type your message here...", key="main_chat_input"):
