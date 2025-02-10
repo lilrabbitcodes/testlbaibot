@@ -559,12 +559,10 @@ def handle_chat_input(prompt):
     
     # Handle normal responses
     try:
-        # Try to get choice number from prompt
         choice = None
         if prompt.isdigit():
             choice = int(prompt)
         else:
-            # Check if prompt matches any Chinese option
             current_scene = st.session_state.chatbot.get_current_scene()
             if current_scene:
                 for i, opt in enumerate(current_scene.options, 1):
@@ -575,10 +573,15 @@ def handle_chat_input(prompt):
         if choice and 1 <= choice <= 3:
             response = st.session_state.chatbot.handle_choice(choice)
             
-            # Add bot's response to chat history
+            # Extract Chinese text from response for audio
+            chinese_text = response["text"].split("**「")[1].split("」**")[0]
+            audio_html = text_to_speech(chinese_text)
+            
+            # Add bot's response to chat history with audio
             st.session_state.chat_history.append({
                 "role": "assistant",
-                "content": response["text"]
+                "content": response["text"],
+                "audio_html": audio_html
             })
             
             # If there's a next scene, add it to chat history
@@ -592,7 +595,7 @@ def handle_chat_input(prompt):
                 
                 st.session_state.chat_history.append({
                     "role": "assistant",
-                    "content": f"{response['text']}{options_text}"
+                    "content": options_text
                 })
         else:
             st.session_state.chat_history.append({
