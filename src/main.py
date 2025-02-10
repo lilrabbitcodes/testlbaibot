@@ -783,35 +783,70 @@ def handle_chat_input(prompt):
         
         if choice and 1 <= choice <= 3:
             response = st.session_state.chatbot.handle_choice(choice)
-            points = current_scene.options[choice-1]["points"]
             
-            # Store the last response for audio playback
-            st.session_state.last_response = response
-            
-            # Extract Chinese text from response for audio
-            chinese_text = response["text"].split("**「")[1].split("」**")[0]
-            audio_html = text_to_speech(chinese_text)
-            
-            # Remove typing indicator and add bot's response with points
-            typing_placeholder.empty()
-            st.session_state.chat_history.append({
-                "role": "assistant",
-                "content": f"{response['text']}\n\n❤️ Babe Happiness Meter: {response['points']}/100 (+{points} points)",
-                "audio_html": audio_html
-            })
-            
-            # If there's a next scene, add it to chat history
-            if "next_options" in response and response["next_options"]:
-                next_scene = response["next_options"]
-                options_text = "\n\n🟢 Choose your response to your babe:\n\n"
-                for i, opt in enumerate(next_scene, 1):
-                    chinese = opt['chinese'].replace('**', '')
-                    options_text += f"{i}️⃣ {chinese} {opt['pinyin']} {opt['english']}\n\n"
-                options_text += "-\n\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
+            # Handle multiple responses (for sub-scenes)
+            if "responses" in response:
+                # First response (user's choice response)
+                first_response = response["responses"][0]
+                chinese_text = first_response["text"].split("**「")[1].split("」**")[0]
+                audio_html = text_to_speech(chinese_text)
                 
+                typing_placeholder.empty()
                 st.session_state.chat_history.append({
                     "role": "assistant",
-                    "content": options_text
+                    "content": f"{first_response['text']}\n\n❤️ Babe Happiness Meter: {st.session_state.chatbot.points}/100 (+{first_response['points']} points)",
+                    "audio_html": audio_html
+                })
+                
+                # Second response (narrative transition)
+                if len(response["responses"]) > 1:
+                    transition = response["responses"][1]
+                    if not transition.get("no_audio"):
+                        chinese_text = transition["text"].split("**「")[1].split("」**")[0] if "**「" in transition["text"] else ""
+                        audio_html = text_to_speech(chinese_text) if chinese_text else None
+                    else:
+                        audio_html = None
+                    
+                    st.session_state.chat_history.append({
+                        "role": "assistant",
+                        "content": transition["text"],
+                        "audio_html": audio_html
+                    })
+                
+                # Third response (next scene setup)
+                if len(response["responses"]) > 2:
+                    scene_setup = response["responses"][2]
+                    chinese_text = scene_setup["text"].split("**「")[1].split("」**")[0]
+                    audio_html = text_to_speech(chinese_text)
+                    
+                    st.session_state.chat_history.append({
+                        "role": "assistant",
+                        "content": scene_setup["text"],
+                        "audio_html": audio_html
+                    })
+                    
+                    # Add next options if available
+                    if "next_options" in scene_setup:
+                        options_text = "\n\n🟢 Choose your response to your babe:\n\n"
+                        for i, opt in enumerate(scene_setup["next_options"], 1):
+                            chinese = opt['chinese'].replace('**', '')
+                            options_text += f"{i}️⃣ {chinese} {opt['pinyin']} {opt['english']}\n\n"
+                        options_text += "-\n\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
+                        
+                        st.session_state.chat_history.append({
+                            "role": "assistant",
+                            "content": options_text
+                        })
+            else:
+                # Handle regular single response
+                chinese_text = response["text"].split("**「")[1].split("」**")[0]
+                audio_html = text_to_speech(chinese_text)
+                
+                typing_placeholder.empty()
+                st.session_state.chat_history.append({
+                    "role": "assistant",
+                    "content": f"{response['text']}\n\n❤️ Babe Happiness Meter: {response['points']}/100",
+                    "audio_html": audio_html
                 })
         else:
             typing_placeholder.empty()
