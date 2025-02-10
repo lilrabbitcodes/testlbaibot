@@ -301,21 +301,21 @@ if "user_info" not in st.session_state:
     }
 
 class Scene:
-    def __init__(self, scene_id, initial_text, options, responses):
+    def __init__(self, scene_id, initial_text, options):
         self.scene_id = scene_id
         self.initial_text = initial_text
-        self.options = options  # List of {chinese, pinyin, english, points, note}
-        self.responses = responses  # Dict of {choice: {text, next_options}}
+        self.options = options  # List of {chinese, pinyin, english, points, note, lingobabe_reply}
     
-    def handle_sub_choice(self, choice, next_options):
-        """Handle sub-choices within a scene"""
-        if 1 <= choice <= len(next_options):
-            option = next_options[choice-1]
+    def handle_choice(self, choice):
+        """Handle user choice and return appropriate response"""
+        if 1 <= choice <= len(self.options):
+            option = self.options[choice-1]
             if "lingobabe_reply" in option:
                 return {
                     "text": option["lingobabe_reply"]["text"],
-                    "transition": option["lingobabe_reply"]["transition"],
-                    "points": option["points"]
+                    "transition": option["lingobabe_reply"].get("transition", ""),
+                    "points": option["points"],
+                    "next_options": option["lingobabe_reply"].get("next_options", [])
                 }
         return None
 
