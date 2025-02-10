@@ -33,7 +33,7 @@ except Exception as e:
     st.stop()
 
 def text_to_speech(text):
-    """Convert Chinese text to speech"""
+    """Generate audio for Chinese text"""
     try:
         response = client.audio.speech.create(
             model="tts-1",
@@ -41,25 +41,20 @@ def text_to_speech(text):
             input=text
         )
         
-        audio_file_path = "temp_audio.mp3"
-        response.stream_to_file(audio_file_path)
+        # Convert audio response to base64
+        audio_data = response.content
+        audio_base64 = base64.b64encode(audio_data).decode()
         
-        with open(audio_file_path, "rb") as audio_file:
-            audio_bytes = audio_file.read()
-        audio_base64 = base64.b64encode(audio_bytes).decode()
-        
-        os.remove(audio_file_path)
-        
-        audio_html = f"""
-            <div style="margin: 0;">
-                <audio controls style="height: 30px; width: 180px;">
-                    <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
-                </audio>
-            </div>
+        # Return HTML audio player with base64 encoded audio
+        return f"""
+            <audio controls>
+                <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
         """
-        return audio_html
     except Exception as e:
-        return f"Error generating audio: {str(e)}"
+        print(f"Error generating audio: {e}")
+        return None
 
 # Load custom avatars
 working_dir = os.path.dirname(os.path.abspath(__file__))
@@ -605,20 +600,24 @@ def handle_chat_input(prompt):
                 chinese = option["chinese"].replace("**", "").replace("「", "").replace("」", "")
                 audio_html = text_to_speech(chinese)
                 
-                with st.chat_message("assistant", avatar=TUTOR_AVATAR):
-                    st.markdown("This is how you pronounce, babe:")
-                    st.markdown(f"{chinese}")
-                    st.markdown(f"{option['pinyin']}")
-                    st.markdown(f"{option['english']}")
-                    st.markdown(audio_html, unsafe_allow_html=True)
-                
-                # Add to chat history
-                st.session_state.chat_history.append({
-                    "role": "assistant",
-                    "content": f"This is how you pronounce, babe:\n{chinese}\n{option['pinyin']}\n{option['english']}",
-                    "audio_html": audio_html
-                })
-                return
+                if audio_html:  # Only proceed if audio was generated successfully
+                    with st.chat_message("assistant", avatar=TUTOR_AVATAR):
+                        st.markdown("This is how you pronounce, babe:")
+                        st.markdown(f"{chinese}")
+                        st.markdown(f"{option['pinyin']}")
+                        st.markdown(f"{option['english']}")
+                        st.markdown(audio_html, unsafe_allow_html=True)
+                    
+                    # Add to chat history
+                    st.session_state.chat_history.append({
+                        "role": "assistant",
+                        "content": f"This is how you pronounce, babe:\n{chinese}\n{option['pinyin']}\n{option['english']}",
+                        "audio_html": audio_html
+                    })
+                    return
+                else:
+                    with st.chat_message("assistant", avatar=TUTOR_AVATAR):
+                        st.markdown("Sorry babe, I couldn't generate the audio right now.")
         except (ValueError, IndexError) as e:
             print(f"Error handling audio request: {e}")
             with st.chat_message("assistant", avatar=TUTOR_AVATAR):
