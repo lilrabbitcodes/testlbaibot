@@ -35,19 +35,14 @@ except Exception as e:
 def text_to_speech(text):
     """Generate audio for Chinese text"""
     try:
-        # Create speech using OpenAI API
         response = client.audio.speech.create(
             model="tts-1",
             voice="nova",
             input=text
         )
-        
-        # Convert to base64 directly from response content
         audio_base64 = base64.b64encode(response.content).decode()
-        
-        # Return HTML audio player
         return f"""
-            <audio controls style="height: 50px;">
+            <audio controls>
                 <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
             </audio>
         """
@@ -476,17 +471,17 @@ _"Perfect timing. I was just admiring the ambiance—seems like you have good ta
         first_chinese = "刚刚好，我正欣赏着这里的氛围——看来你的品味不错。"
         first_audio = text_to_speech(first_chinese)
         
-        # Add options
+        # Add options (without showing points)
         options_message = "\n\n🟢 **Choose your response to your babe:**\n\n"
-        options_message += """1️⃣ **「我特意订了座位，今晚当然要享受最好的。」** _(❤️ +12)_
+        options_message += """1️⃣ **「我特意订了座位，今晚当然要享受最好的。」**
 (Wǒ tèyì dìngle zuòwèi, jīnwǎn dāngrán yào xiǎngshòu zuì hǎo de.)
 _"I took the liberty of making a reservation. Only the best for tonight."_
 
-2️⃣ **「希望这里的美食能配得上这氛围。」** _(❤️ +9)_
+2️⃣ **「希望这里的美食能配得上这氛围。」**
 (Xīwàng zhèlǐ de měishí néng pèi dé shàng zhè fēnwèi.)
 _"I hope the food lives up to the atmosphere."_
 
-3️⃣ **「说实话？我只是跟着网上的好评来的。」** _(❤️ +6)_
+3️⃣ **「说实话？我只是跟着网上的好评来的。」**
 (Shuō shíhuà? Wǒ zhǐshì gēnzhe wǎngshàng de hǎopíng lái de.)
 _"Honestly? I just followed the best reviews online."_"""
         
@@ -586,7 +581,6 @@ def format_message_content(content):
 
 def handle_chat_input(prompt):
     """Handle chat input and return appropriate responses"""
-    # Add user message to chat history
     with st.chat_message("user", avatar=USER_AVATAR):
         st.markdown(prompt)
     
@@ -599,8 +593,6 @@ def handle_chat_input(prompt):
             if current_scene and 1 <= option_num <= 3:
                 option = current_scene["options"][option_num-1]
                 chinese = option["chinese"].replace("**", "").replace("「", "").replace("」", "")
-                
-                # Generate audio
                 audio_html = text_to_speech(chinese)
                 
                 if audio_html:
@@ -611,24 +603,61 @@ def handle_chat_input(prompt):
                         st.markdown(option["english"])
                         st.markdown(audio_html, unsafe_allow_html=True)
                     
-                    # Add to chat history
+                    st.session_state.chat_history.append({
+                        "role": "user",
+                        "content": prompt
+                    })
                     st.session_state.chat_history.append({
                         "role": "assistant",
                         "content": f"This is how you pronounce, babe:\n{chinese}\n{option['pinyin']}\n{option['english']}",
                         "audio_html": audio_html
                     })
-                    return
-                
+                    st.rerun()
             else:
                 with st.chat_message("assistant", avatar=TUTOR_AVATAR):
                     st.markdown("Sorry babe, please choose a valid option number (1-3).")
-                return
-                
         except (ValueError, IndexError) as e:
             print(f"Error handling audio request: {e}")
             with st.chat_message("assistant", avatar=TUTOR_AVATAR):
                 st.markdown("Sorry babe, please choose a valid option number (1-3).")
-            return
+    else:
+        # Handle normal responses
+        try:
+            choice = int(prompt)
+            if 1 <= choice <= 3:
+                response = st.session_state.chatbot.handle_choice(choice)
+                with st.chat_message("assistant", avatar=TUTOR_AVATAR):
+                    st.markdown(response["text"])
+                    
+                    # Show next scene if available
+                    if "next_scene" in response:
+                        next_scene = response["next_scene"]
+                        if next_scene:
+                            st.markdown(next_scene["text"])
+                            st.markdown("\n\n🟢 **Choose your response:**\n\n")
+                            for i, opt in enumerate(next_scene["options"], 1):
+                                st.markdown(
+                                    f"{i}️⃣ {opt['chinese']}\n"
+                                    f"{opt['pinyin']}\n"
+                                    f"{opt['english']}\n\n"
+                                )
+                            st.markdown("\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!")
+                
+                st.session_state.chat_history.append({
+                    "role": "user",
+                    "content": prompt
+                })
+                st.session_state.chat_history.append({
+                    "role": "assistant",
+                    "content": response["text"]
+                })
+                st.rerun()
+            else:
+                with st.chat_message("assistant", avatar=TUTOR_AVATAR):
+                    st.markdown("Sorry babe, I don't quite understand you.")
+        except ValueError:
+            with st.chat_message("assistant", avatar=TUTOR_AVATAR):
+                st.markdown("Sorry babe, I don't quite understand you.")
 
 # Update the chat input handling section
 if prompt := st.chat_input("Type your message here...", key="main_chat_input"):
