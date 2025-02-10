@@ -327,60 +327,71 @@ class LingobabeChat:
 
     def get_current_scene(self):
         """Get current scene content from chat script"""
-        scenes = self.chat_script.split("## **")
-        for scene in scenes:
-            if f"Scene {self.current_scene}:" in scene:
-                return self.parse_scene(scene)
-        return None
+        try:
+            scenes = self.chat_script.split("## **")
+            for scene in scenes:
+                if f"Scene {self.current_scene}:" in scene:
+                    parsed_scene = self.parse_scene(scene)
+                    if parsed_scene:
+                        return parsed_scene
+            return None
+        except Exception as e:
+            print(f"Error loading scene: {e}")
+            return None
 
     def parse_scene(self, scene_content):
         """Parse scene content into structured format"""
-        # Remove scene numbering and title
-        scene_content = scene_content.split("Lingobabe:", 1)[-1].strip()
-        
-        parts = scene_content.split("🟢 **Choose your response to your babe:**")
-        if len(parts) < 2:
+        try:
+            # Remove scene numbering and title
+            scene_content = scene_content.split("Lingobabe:", 1)[-1].strip()
+            
+            # Split into main content and options
+            parts = scene_content.split("🟢 **User MUST choose one response:**")
+            if len(parts) < 2:
+                return None
+
+            scene_text = parts[0].strip()
+            options_text = parts[1]
+            
+            # Parse options and responses
+            options = []
+            responses = {}
+            
+            # Split into option blocks
+            option_blocks = options_text.split("### **If User Selects")
+            first_block = option_blocks[0]
+            
+            # Parse each option
+            for i, block in enumerate(option_blocks[1:], 1):
+                # Get the option details
+                option_lines = block.split("\n\n")
+                chinese = next((l for l in option_lines if "「" in l), "")
+                pinyin = next((l for l in option_lines if "(" in l and ")" in l), "")
+                english = next((l for l in option_lines if "_" in l), "")
+                
+                options.append({
+                    "chinese": chinese,
+                    "pinyin": pinyin,
+                    "english": english
+                })
+                
+                # Get the response
+                response_start = block.find("**Lingobabe:**")
+                if response_start != -1:
+                    response_text = block[response_start:].split("\n\n")[1].strip()
+                    responses[i] = {
+                        "text": response_text,
+                        "chinese": next((l for l in response_text.split('\n') if '「' in l), '')
+                    }
+
+            return {
+                "text": scene_text,
+                "options": options,
+                "responses": responses
+            }
+        except Exception as e:
+            print(f"Error parsing scene: {e}")
             return None
-
-        scene_text = parts[0].strip()
-        options_text = parts[1]
-        
-        # Parse options and responses
-        options = []
-        responses = {}
-        
-        # Split into option blocks
-        option_blocks = options_text.split("### **If User Selects")
-        first_block = option_blocks[0]
-        
-        # Parse each option
-        for i, block in enumerate(option_blocks[1:], 1):
-            # Get the option details
-            option_lines = block.split("\n\n")
-            chinese = next((l for l in option_lines if "「" in l), "")
-            pinyin = next((l for l in option_lines if "(" in l and ")" in l), "")
-            english = next((l for l in option_lines if "_" in l), "")
-            
-            options.append({
-                "chinese": chinese,
-                "pinyin": pinyin,
-                "english": english
-            })
-            
-            # Get the response
-            response_start = block.find("**Lingobabe:**")
-            if response_start != -1:
-                response_text = block[response_start:].split("\n\n")[1].strip()
-                responses[i] = {
-                    "text": response_text,
-                    "chinese": next((l for l in response_text.split('\n') if '「' in l), '')
-                }
-
-        return {
-            "text": scene_text,
-            "options": options,
-            "responses": responses
-        }
 
     def handle_choice(self, choice):
         """Process user choice and return appropriate response"""
@@ -411,7 +422,10 @@ class LingobabeChat:
         except (ValueError, IndexError):
             return {"text": "Sorry babe, I don't quite understand you.", "points": self.points}
 
-# Initialize session state
+# Initialize session state variables
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
 if "chatbot" not in st.session_state:
     st.session_state.chatbot = LingobabeChat()
     current_scene = st.session_state.chatbot.get_current_scene()
@@ -440,13 +454,14 @@ _"Perfect timing. I was just admiring the ambiance—seems like you have good ta
         options_message += "\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
         
         # Add to chat history with audio
-        st.session_state.chat_history = [{
+        st.session_state.chat_history.append({
             "role": "assistant",
             "content": initial_message + options_message,
             "audio_html": first_audio
-        }]
+        })
     else:
         st.error("Failed to load initial scene")
+        st.stop()
 
 # Display chat history
 for message in st.session_state.chat_history:
