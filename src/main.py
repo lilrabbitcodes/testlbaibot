@@ -390,19 +390,52 @@ _"I have a feeling it will. But a perfect dinner is more than just the food."_""
                             "chinese": "「确实如此。美好的氛围、可口的食物，再加上一位美丽的约会对象，才能令人难忘。」",
                             "pinyin": "(Quèshí rúcǐ. Měihǎo de fēnwèi, kěkǒu de shíwù, zài jiā shàng yī wèi měilì de yuēhuì duìxiàng, cáinéng lìng rén nánwàng.)",
                             "english": "True. A great ambiance, good food, and a beautiful date make it unforgettable.",
-                            "points": 11
+                            "points": 11,
+                            "note": "(❤️ +11, Flirty & Engaging, Uses 'Ambiance' & 'Date')",
+                            "lingobabe_reply": {
+                                "text": """_(Smirks, amused.)_
+
+**「油嘴滑舌啊。看看你能保持多久。」**
+
+(Yóuzuǐhuáshé a. Kànkan nǐ néng bǎochí duōjiǔ.)
+
+_"Smooth talker. Let's see if you can keep this up all night."_""",
+                                "transition": "_(Scene transitions smoothly.)_"
+                            }
                         },
                         {
                             "chinese": "「我认为完美的体验在于平衡——环境、味道、还有陪伴。」",
                             "pinyin": "(Wǒ rènwéi wánměi de tǐyàn zàiyú pínghéng——huánjìng, wèidào, háiyǒu péibàn.)",
                             "english": "I believe every experience is about balance—the setting, the flavors, the company.",
-                            "points": 10
+                            "points": 10,
+                            "note": "(❤️ +10, Sophisticated & Thoughtful, Uses 'Experience')",
+                            "lingobabe_reply": {
+                                "text": """_(Nods slightly, impressed.)_
+
+**「听起来你是个懂得享受生活的人。」**
+
+(Tīng qǐlái nǐ shì gè dǒngdé xiǎngshòu shēnghuó de rén.)
+
+_"You speak like a man who enjoys the finer things."_""",
+                                "transition": "_(Scene transitions smoothly.)_"
+                            }
                         },
                         {
                             "chinese": "「我只是为了吃好吃的来的。只要好吃，我就满足了。」",
                             "pinyin": "(Wǒ zhǐshì wèile chī hǎochī de lái de. Zhǐyào hǎochī, wǒ jiù mǎnzú le.)",
                             "english": "I'm just here for the food. If it's good, I'll be happy.",
-                            "points": 7
+                            "points": 7,
+                            "note": "(❤️ +7, Casual but Low Engagement, Uses 'Food')",
+                            "lingobabe_reply": {
+                                "text": """_(Chuckles, leaning back slightly.)_
+
+**「简单的快乐也是一种奢侈。希望今晚的厨师不会让你失望。」**
+
+(Jiǎndān de kuàilè yěshì yī zhǒng shēchǐ. Xīwàng jīnwǎn de chúshī bú huì ràng nǐ shīwàng.)
+
+_"Simple pleasures can be a luxury too. Let's hope the chef delivers."_""",
+                                "transition": "_(Scene transitions smoothly.)_"
+                            }
                         }
                     ]
                 }
@@ -563,109 +596,67 @@ def format_message_content(content):
     return '\n'.join(formatted_lines)
 
 def handle_chat_input(prompt):
-    """Handle chat input and return appropriate responses"""
-    # Add user message to history
-    st.session_state.chat_history.append({
-        "role": "user",
-        "content": prompt
-    })
-    
-    # Show animated typing indicator
-    with st.chat_message("assistant", avatar=TUTOR_AVATAR):
-        typing_placeholder = st.empty()
-        typing_placeholder.markdown("""
-            <div class="typing-indicator">
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-            </div>
-        """, unsafe_allow_html=True)
-        time.sleep(1)  # Simulate typing delay
-    
-    # Handle audio playback requests
-    if prompt.lower().startswith("play audio"):
-        try:
-            option_num = int(prompt.split()[-1])
-            current_scene = st.session_state.chatbot.get_current_scene()
-            
-            if current_scene and 1 <= option_num <= 3:
-                option = current_scene.options[option_num-1]
-                chinese = option["chinese"]
-                for char in ["「", "」", "**"]:
-                    chinese = chinese.replace(char, "")
-                chinese = chinese.strip()
-                
-                audio_html = text_to_speech(chinese)
-                
-                if audio_html:
-                    typing_placeholder.empty()
-                    st.session_state.chat_history.append({
-                        "role": "assistant",
-                        "content": f"This is how you pronounce, babe:\n\n{chinese}\n{option['pinyin']}\n{option['english']}",
-                        "audio_html": audio_html
-                    })
-                    st.rerun()
-            return
-            
-        except Exception as e:
-            print(f"Error in audio playback: {e}")
-            typing_placeholder.empty()
-            st.session_state.chat_history.append({
-                "role": "assistant",
-                "content": "Sorry babe, I couldn't play the audio right now."
-            })
-            st.rerun()
-    
-    # Handle normal responses
     try:
+        typing_placeholder = st.empty()
+        typing_placeholder.markdown("_Lingobabe is typing..._")
+        
         choice = None
         current_scene = st.session_state.chatbot.get_current_scene()
         
         if prompt.isdigit():
             choice = int(prompt)
         elif current_scene:
+            # Match Chinese text input to options
             for i, opt in enumerate(current_scene.options, 1):
                 clean_chinese = opt["chinese"].replace("**", "").replace("「", "").replace("」", "").strip()
                 clean_prompt = prompt.replace("「", "").replace("」", "").strip()
-                if clean_chinese in clean_prompt or clean_prompt in clean_chinese:
+                if clean_chinese in clean_prompt or clean_prompt in clean_prompt:
                     choice = i
                     break
         
-        if choice and 1 <= choice <= 3:
-            response = st.session_state.chatbot.handle_choice(choice)
-            points = current_scene.options[choice-1]["points"]
+        if choice:
+            response = current_scene.handle_choice(choice)
             
-            # Extract Chinese text from response for audio
-            chinese_text = response["text"].split("**「")[1].split("」**")[0]
-            audio_html = text_to_speech(chinese_text)
-            
-            # Remove typing indicator and add bot's response with points
+            # Remove typing indicator
             typing_placeholder.empty()
+            
+            # Add user's choice to chat history (without note/points)
+            option = current_scene.options[choice-1]
             st.session_state.chat_history.append({
-                "role": "assistant",
-                "content": f"{response['text']}\n\n❤️ Babe Happiness Meter: {response['points']}/100 (+{points} points)",
-                "audio_html": audio_html
+                "role": "user",
+                "content": f"{option['chinese']} {option['pinyin']} {option['english']}"
             })
             
-            # If there's a next scene, add it to chat history
+            # Add Lingobabe's reply with points (but not showing note)
+            if "text" in response:
+                chinese_text = response["text"].split("**")[1].split("」**")[0]
+                audio_html = text_to_speech(chinese_text)
+                
+                st.session_state.chat_history.append({
+                    "role": "assistant",
+                    "content": f"{response['text']}\n\n❤️ Babe Happiness Meter: {response['points']}/100",
+                    "audio_html": audio_html
+                })
+            
+            # Add scene transition if available
+            if "transition" in response and response["transition"]:
+                st.session_state.chat_history.append({
+                    "role": "assistant",
+                    "content": response["transition"],
+                    "audio_html": transition_audio
+                })
+            
+            # Add next options if available (without notes)
             if "next_options" in response and response["next_options"]:
-                next_scene = response["next_options"]
-                options_text = "\n\n🟢 Choose your response to your babe:\n\n"
-                for i, opt in enumerate(next_scene, 1):
-                    chinese = opt['chinese'].replace('**', '')
-                    options_text += f"{i}️⃣ {chinese} {opt['pinyin']} {opt['english']}\n\n"
-                options_text += "-\n\n🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
+                options_text = "\n🟢 Choose your response to your babe:\n\n"
+                for i, opt in enumerate(response["next_options"], 1):
+                    options_text += f"{i}️⃣ {opt['chinese']} {opt['pinyin']} {opt['english']}\n\n"
+                options_text += "🔊 Want to hear how to pronounce it? Type 'play audio X' where X is your reply number!"
                 
                 st.session_state.chat_history.append({
                     "role": "assistant",
                     "content": options_text
                 })
-        else:
-            typing_placeholder.empty()
-            st.session_state.chat_history.append({
-                "role": "assistant",
-                "content": "Sorry babe, I don't quite understand you."
-            })
     except Exception as e:
         print(f"Error handling response: {e}")
         typing_placeholder.empty()
